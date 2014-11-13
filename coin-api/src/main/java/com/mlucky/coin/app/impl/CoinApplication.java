@@ -3,6 +3,7 @@ package com.mlucky.coin.app.impl;
 
 import org.joda.money.CurrencyUnit;
 import org.joda.money.Money;
+import sun.net.www.content.text.Generic;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -12,7 +13,7 @@ import java.util.List;
  * Created by m.iakymchuk on 05.11.2014.
  */
 public class CoinApplication {
-    private static CoinApplication coinApplication = new CoinApplication();
+    private static CoinApplication coinApplication = null;
     private static final String localCurrency = "UAH";
     private final Date installDate;
     private Date currentDate;
@@ -42,10 +43,11 @@ public class CoinApplication {
         this.plannedSpend = Money.zero(local);
         this.spendBudget = Money.zero(local);
         this.planedInCome = Money.zero(local);
+        coinApplication = this;
     }
 
-    public static CoinApplication getCoinApplication() {
-        return coinApplication;
+    public static synchronized CoinApplication getCoinApplication() {
+        return (coinApplication == null) ? new CoinApplication() : coinApplication;
     }
 
     public void setCurrentDate(Date currentDate) {
@@ -75,6 +77,7 @@ public class CoinApplication {
         this.goals.add(goal);
         return goal;
     }
+
     public void addAccountTransaction(InCome from, Account to, String sMoney) {
         from.addTransaction(to, sMoney);
     }
@@ -85,6 +88,27 @@ public class CoinApplication {
 
     public void addSpendTransaction(Account from, Spend to, String sMoney) {
         from.addTransaction(to, sMoney);
+    }
+
+    public void removeInCome(InCome inCome) {
+
+    }
+
+    public void removeAccount(Account account) {
+
+
+    }
+
+    public void removeSpend(Spend spend) {
+
+    }
+
+    public void removeGoal(Goal goal) {
+
+    }
+
+    public void removeTransaction(Transaction transaction) {
+
     }
 
     public List<InCome> getInComeSources() {
@@ -102,4 +126,17 @@ public class CoinApplication {
     public List<Goal> getGoals() {
         return goals;
     }
+
+    public List<?> getMoneyFlowList(MoneyFlow type) {
+        if (type instanceof InCome)
+            return inComeSources;
+        else if (type instanceof Account)
+            return accounts;
+        else if (type instanceof  Spend)
+            return spends;
+        else if (type instanceof  Goal)
+            return goals;
+        else return null;
+    }
+
 }

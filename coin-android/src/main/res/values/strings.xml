@@ -4,5 +4,11 @@
     <string name="app_name">coinkeeper</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="title_item">title</string>
+    <string name="amount">amount</string>
+    <string name="dialog_title_add_item">Please enter title</string>
+    <string name="dialog_title_transaction">Please enter amount</string>
+    <string name="set_title">Add</string>
+    <string name="cancel">Cancel</string>
 
 </resources>

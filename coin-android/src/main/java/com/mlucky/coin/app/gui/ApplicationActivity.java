@@ -1,8 +1,9 @@
 package com.mlucky.coin.app.gui;
 
-import android.app.Activity;
+import android.app.*;
 import android.content.ClipData;
 import android.content.ClipDescription;
+import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.*;
@@ -10,8 +11,8 @@ import android.widget.*;
 import com.mlucky.coin.app.impl.*;
 
 public class ApplicationActivity extends Activity {
-    final CoinApplication coinApplication = CoinApplication.getCoinApplication();
-    private static final String INCOME_VIEW_TAG = "income_index";
+    CoinApplication coinApplication = CoinApplication.getCoinApplication();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,54 +40,18 @@ public class ApplicationActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void inComeAddButtonClick(View view) {
-        LayoutInflater layoutInflater = getLayoutInflater();
+    public void  OnAddButtonClick(View view) {
 
-        LinearLayout inComeLayout = (LinearLayout)findViewById(R.id.income_linear_layout);
-        LinearLayout itemLayout =
-                // Add the LinearLayout layout to the parent income_linear_layout
-                (LinearLayout)layoutInflater.inflate(R.layout.item, inComeLayout, false);
-
-        // In order to get the view we have to use the new view with item_title in it
-        InCome income = coinApplication.addIncome("Salary");
-
-        TextView titleText = (TextView)itemLayout.findViewById(R.id.item_title);
-        titleText.setText(income.getTitle().toString());
-        TextView totalText = (TextView)itemLayout.findViewById(R.id.item_total);
-        totalText.setText(income.getTotal().toString());
-
-        itemLayout.setTag(INCOME_VIEW_TAG);
-        final ImageView imageView;
-        imageView = (ImageView)itemLayout.findViewById(R.id.item_image);
-
-        Drawable mIcon = getResources().getDrawable(R.drawable.ic_launcher);
-        imageView.setBackground(mIcon);
-
-        inComeLayout.addView(itemLayout);
-
-        final int index = coinApplication.getInComeSources().indexOf(income);
-
-        itemLayout.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-
-
-                //String[] mimeTypes = {ClipDescription.MIMETYPE_TEXT_PLAIN};
-                ClipData dragData = ClipData.newPlainText((CharSequence) view.getTag(), Integer.toString(index));
-                //ClipData.Item item = new ClipData.Item(Integer.toString(totalText.getId()));
-                View.DragShadowBuilder inComeShadow = new View.DragShadowBuilder(imageView);
-                //dragData.addItem(item);
-                view.startDrag(dragData,  // the data to be dragged
-                        inComeShadow,  // the drag shadow builder
-                        null,      // no need to use local data
-                        0          // flags (not currently used, set to 0)
-                );
-                return false;
-            }
-        });
+        DialogFragment addDialog = new AddItemDialogFragment();
+        Bundle bundle = new Bundle();
+        bundle.putInt("layoutId", view.getId());
+        addDialog.setArguments(bundle);
+        addDialog.show(getFragmentManager(), "dialog_add_item");
     }
 
     public void inAccountAddButtonClick(View view) {
+        DialogFragment addDialog = new TransactionDialogFragment();
+        addDialog.show(getFragmentManager(), "dialog_transaction");
         LayoutInflater layoutInflater = getLayoutInflater();
 
         LinearLayout accountLayout = (LinearLayout)findViewById(R.id.account_linear_layout);
@@ -135,9 +100,7 @@ public class ApplicationActivity extends Activity {
                 }
                 return false;
             }
-
-
         });
-
     }
+
 }

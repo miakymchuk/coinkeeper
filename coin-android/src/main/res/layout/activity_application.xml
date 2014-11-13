@@ -26,9 +26,9 @@
                                 android:layout_height="wrap_content"
                                 android:text="add"
                                 android:layout_gravity="center"
-                                android:id="@+id/incomeadd_button"
-                                android:onClick="inComeAddButtonClick"/>
-                    </LinearLayout>
+                                android:id="@+id/income_add_button"
+                                android:onClick="OnAddButtonClick"/>
+                </LinearLayout>
             </LinearLayout>
         </HorizontalScrollView>
     <HorizontalScrollView
@@ -42,13 +42,20 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:id="@+id/account_linear_layout">
-            <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="add"
-                    android:layout_gravity="center"
-                    android:id="@+id/accountadd_button"
-                    android:onClick="inAccountAddButtonClick"/>
+            <LinearLayout
+                    xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:orientation="vertical">
+                <Button
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="add"
+                        android:layout_gravity="center"
+                        android:id="@+id/account_add_button"
+                        android:onClick="OnAddButtonClick"/>
+            </LinearLayout>
 
         </LinearLayout>
     </HorizontalScrollView>
@@ -61,8 +68,22 @@
         <LinearLayout
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
+                android:layout_height="match_parent"
+                android:id="@+id/spend_linear_layout">
+            <LinearLayout
+                    xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:orientation="vertical">
+                <Button
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="add"
+                        android:layout_gravity="center"
+                        android:id="@+id/spend_add_button"
+                        android:onClick="OnAddButtonClick"/>
+            </LinearLayout>
         </LinearLayout>
     </HorizontalScrollView>
     <HorizontalScrollView
@@ -74,8 +95,22 @@
         <LinearLayout
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
+                android:layout_height="match_parent"
+                android:id="@+id/goal_linear_layout">
+            <LinearLayout
+                    xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:orientation="vertical">
+                <Button
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="add"
+                        android:layout_gravity="center"
+                        android:id="@+id/goal_add_button"
+                        android:onClick="OnAddButtonClick"/>
+            </LinearLayout>
         </LinearLayout>
     </HorizontalScrollView>
 
