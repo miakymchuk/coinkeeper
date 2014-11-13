@@ -78,15 +78,19 @@ public class CoinApplication {
         return goal;
     }
 
-    public void addAccountTransaction(InCome from, Account to, String sMoney) {
+    public void addInComeAccountTransaction(InCome from, Account to, String sMoney) {
         from.addTransaction(to, sMoney);
     }
 
-    public void addGoalTransaction(InCome from, Goal to,  String sMoney) {
+    public void addAccountGoalTransaction(Account from, Goal to,  String sMoney) {
         from.addTransaction(to, sMoney);
     }
 
-    public void addSpendTransaction(Account from, Spend to, String sMoney) {
+    public void addAccountSpendTransaction(Account from, Spend to, String sMoney) {
+        from.addTransaction(to, sMoney);
+    }
+
+    public void addGoalSpendTransaction(Goal from, Spend to, String sMoney) {
         from.addTransaction(to, sMoney);
     }
 
@@ -127,14 +131,14 @@ public class CoinApplication {
         return goals;
     }
 
-    public List<?> getMoneyFlowList(MoneyFlow type) {
-        if (type instanceof InCome)
+    public List<?> getMoneyFlowList(String type) {
+        if ("InCome".equals(type))
             return inComeSources;
-        else if (type instanceof Account)
+        else if ("Account".equals(type))
             return accounts;
-        else if (type instanceof  Spend)
+        else if ("Spend".equals(type))
             return spends;
-        else if (type instanceof  Goal)
+        else if ("Goal".equals(type))
             return goals;
         else return null;
     }

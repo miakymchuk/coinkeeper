@@ -32,7 +32,7 @@ public class TestApplication {
         coinApplication.addGoal(titleCar);
 
 
-        coinApplication.addAccountTransaction(salary, agricole, "840");
+        coinApplication.addInComeAccountTransaction(salary, agricole, "840");
         System.out.println(salary.getTotal().toString());
         System.out.println(agricole.getTotal().toString());
         Assert.assertEquals(salary.getTotal().toString(),"UAH 840.00");

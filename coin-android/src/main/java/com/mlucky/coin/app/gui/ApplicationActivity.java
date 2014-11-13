@@ -87,7 +87,7 @@ public class ApplicationActivity extends Activity {
 
                         InCome from = coinApplication.getInComeSources().get(incomeIndex);
                         Account to = coinApplication.getAccounts().get(accountIndex);
-                        coinApplication.addAccountTransaction(from, to, "500");
+                        coinApplication.addInComeAccountTransaction(from, to, "500");
 
                         LinearLayout incomeLayout =(LinearLayout)findViewById(R.id.income_linear_layout);
                         LinearLayout incomeItemLayout = (LinearLayout)incomeLayout.getChildAt(incomeIndex+1);
