@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.*;
 import com.mlucky.coin.app.impl.*;
 
@@ -18,6 +19,7 @@ public class AddItemDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         final Activity coinActivity = getActivity();
+
         final CoinApplication coinApplication = CoinApplication.getCoinApplication();
         final String INCOME_VIEW_TAG = "income_index";
 
@@ -32,6 +34,7 @@ public class AddItemDialogFragment extends DialogFragment {
         builder.setPositiveButton(R.string.set_title, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
+
                 int layoutId = 0;
                 MoneyFlow moneyFlowItem = null;
                 String titleItem = titleInput.getText().toString();
@@ -140,5 +143,11 @@ public class AddItemDialogFragment extends DialogFragment {
         });
 
         return builder.create();
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
     }
 }
