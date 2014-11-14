@@ -16,13 +16,15 @@ public class Transaction {
     private MoneyFlow to;
     private Date transactionDate;
     private Money moneyCount;
+    private boolean isIncreasing;
 
-    public Transaction(MoneyFlow from, MoneyFlow to, Money sumOfTransaction) {
+    public Transaction(MoneyFlow from, MoneyFlow to, Money sumOfTransaction, boolean isIncreasing) {
         this.id = createdId();
         this.from = from;
         this.to = to;
         this.moneyCount = sumOfTransaction;
         this.transactionDate = new Date();
+        this.isIncreasing = isIncreasing;
     }
 
     public static synchronized String createdId() {
@@ -47,5 +49,9 @@ public class Transaction {
 
     public MoneyFlow getTo() {
         return to;
+    }
+
+    public boolean isIncreasing() {
+        return isIncreasing;
     }
 }

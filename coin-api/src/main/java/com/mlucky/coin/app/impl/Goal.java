@@ -11,11 +11,15 @@ public class Goal extends MoneyFlow {
     private Budget budget;
 
     @Override
-    public void addTransaction(MoneyFlow to, String money) {
-        super.addTransaction(to, money);
-        if(this.budget.isOverBudget(this)) {
-            this.budget.setBudget(this.getTotal());
-        }
+    public void addTransaction(MoneyFlow to, String money, boolean isIncreasing) {
+        super.addTransaction(to, money, isIncreasing);
+//        if(this.budget.isOverBudget(this)) {
+//            this.budget.setBudget(this.getTotal());
+//        }
+    }
+
+    public Goal() {
+        super();
     }
 
     public void setClosed(boolean isClosed) {

@@ -19,6 +19,10 @@ public class InCome extends MoneyFlow {
 //    }
     private Budget budget;
 
+    public InCome() {
+        super();
+    }
+
     public InCome(String title, String currency) {
         super(title, currency);
     }

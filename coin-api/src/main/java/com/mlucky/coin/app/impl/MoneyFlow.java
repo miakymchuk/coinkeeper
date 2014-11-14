@@ -16,15 +16,23 @@ public abstract class MoneyFlow {
     private Money total;
     private List<Transaction> transactions = new ArrayList<Transaction>();
 
-    public void addTransaction(MoneyFlow to, String money) {
+    public void addTransaction(MoneyFlow to, String money, boolean isIncreasing) {
+        if (money.isEmpty()) return;
         Money sumOfTransaction =  Money.parse(getCurrency() +" "+ money);
-        Transaction newTransaction = new Transaction(this, to, sumOfTransaction);
+        Transaction newTransaction = new Transaction(this, to, sumOfTransaction, isIncreasing);
         this.transactions.add(newTransaction);
         to.transactions.add(newTransaction);
-        if (money.isEmpty()) return;
         Money inComeMoney = Money.parse(getCurrency() + " " + money);
-        this.increaseTotal(inComeMoney);
+        if (isIncreasing) {
+            this.increaseTotal(inComeMoney);
+        } else {
+            this.decreaseTotal(inComeMoney);
+        }
         to.increaseTotal(inComeMoney);
+    }
+
+    protected MoneyFlow() {
+
     }
 
     public MoneyFlow(String title, String currency) {

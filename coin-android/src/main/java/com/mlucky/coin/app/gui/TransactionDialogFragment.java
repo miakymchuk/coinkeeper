@@ -1,6 +1,6 @@
 package com.mlucky.coin.app.gui;
 
-import android.app.Activity;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -11,18 +11,14 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 import com.mlucky.coin.app.impl.*;
 
-import java.util.Objects;
 
 /**
  * Created by m.iakymchuk on 13.11.2014.
  */
 public class TransactionDialogFragment extends DialogFragment {
-    private final Object attachingActivityLock = new Object();
 
-    private boolean syncVariable = false;
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
@@ -55,8 +51,14 @@ public class TransactionDialogFragment extends DialogFragment {
                     coinApplication.addAccountGoalTransaction((Account) from, (Goal) to, transactionText.getText().toString());
                 } else if (fromItemType.equals("Goal") && toItemType.equals("Spend")) {
                     coinApplication.addGoalSpendTransaction((Goal) from, (Spend) to, transactionText.getText().toString());
+                } else if (fromItemType.equals("Goal") && toItemType.equals("Goal")) {
+                    coinApplication.addGoalGoalTransaction((Goal) from, (Goal) to, transactionText.getText().toString());
+                } else if (fromItemType.equals("Account") && toItemType.equals("Account")) {
+                    coinApplication.addAccountAccountTransaction((Account) from, (Account) to, transactionText.getText().toString());
+                }else if (fromItemType.equals("Goal") && toItemType.equals("Account")) {
+                    coinApplication.addGoalAccountTransaction((Goal) from, (Account) to, transactionText.getText().toString());
                 }
-                //Activity coinActivity = getActivity();
+
                 int fromLayoutId = getArguments().getInt("fromLayoutId");
                 int toLayoutId = getArguments().getInt("toLayoutId");
                 setTotal((MoneyFlow) from, fromLayoutId, fromIndex);

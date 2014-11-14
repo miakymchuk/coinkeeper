@@ -12,6 +12,8 @@ import android.view.WindowManager;
 import android.widget.*;
 import com.mlucky.coin.app.impl.*;
 
+import java.net.URLClassLoader;
+
 /**
  * Created by m.iakymchuk on 12.11.2014.
  */
@@ -78,7 +80,7 @@ public class AddItemDialogFragment extends DialogFragment {
                 final String itemType = moneyFlowItem.getClass().getSimpleName();
                 final int itemIndex = coinApplication.getMoneyFlowList(itemType).indexOf(moneyFlowItem);
                 final int currentLayoutId = inComeLayout.getId();
-
+                //final int itemLayoutId = itemLayout.getId();
                 if (layoutId != R.id.spend_linear_layout) {
 
 
@@ -91,7 +93,11 @@ public class AddItemDialogFragment extends DialogFragment {
                             View.DragShadowBuilder inComeShadow = new View.DragShadowBuilder(imageView);
                             dragData.addItem(item);
                             dragData.addItem(itemId);
-                            view.startDrag(dragData, inComeShadow, null, 0);
+
+                            Bundle permissionParameter = new Bundle();
+                            permissionParameter.putString("itemType", itemType);
+                            permissionParameter.putInt("itemIndex", itemIndex);
+                            view.startDrag(dragData, inComeShadow, permissionParameter, 0);
                             return false;
                         }
                     });
@@ -104,8 +110,24 @@ public class AddItemDialogFragment extends DialogFragment {
                             final int action = dragEvent.getAction();
                             switch (action) {
                                 case DragEvent.ACTION_DRAG_STARTED:
+                                    String dropFromItemType = ((Bundle)dragEvent.getLocalState()).getString("itemType");
+                                    int itemPosition = ((Bundle)dragEvent.getLocalState()).getInt("itemIndex");
+                                    if ("InCome".equals(dropFromItemType) && "InCome".equals(itemType)) {
+                                        return false;
+                                    } else if ("InCome".equals(dropFromItemType) && "Spend".equals(itemType)) {
+                                        return false;
+                                    } else if ("InCome".equals(dropFromItemType) && "Goal".equals(itemType)) {
+                                        return false;
+                                    } else if ("Account".equals(dropFromItemType) && "Account".equals(itemType)
+                                            && itemPosition == itemIndex){
+                                        return false;
+                                    } else if ("Goal".equals(dropFromItemType) && "Goal".equals(itemType)
+                                            && itemPosition == itemIndex){
+                                        return false;
+                                    }
                                     return true;
                                 case DragEvent.ACTION_DRAG_ENTERED:
+
                                     return true;
                                 case DragEvent.ACTION_DROP:
                                     int fromIndex = Integer.parseInt((String) dragEvent.getClipData().getItemAt(0).getText());

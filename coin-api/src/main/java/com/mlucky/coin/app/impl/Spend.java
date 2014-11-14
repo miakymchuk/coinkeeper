@@ -17,5 +17,7 @@ public class Spend extends MoneyFlow {
         super(title, currency);
     }
 
-
+    public Spend() {
+        super();
+    }
 }

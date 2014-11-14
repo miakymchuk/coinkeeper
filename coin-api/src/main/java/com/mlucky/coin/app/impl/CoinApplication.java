@@ -79,19 +79,31 @@ public class CoinApplication {
     }
 
     public void addInComeAccountTransaction(InCome from, Account to, String sMoney) {
-        from.addTransaction(to, sMoney);
+        from.addTransaction(to, sMoney, true);
+    }
+
+    public void addAccountAccountTransaction(Account from, Account to, String sMoney) {
+        from.addTransaction(to, sMoney, false);
     }
 
     public void addAccountGoalTransaction(Account from, Goal to,  String sMoney) {
-        from.addTransaction(to, sMoney);
+        from.addTransaction(to, sMoney, false);
     }
 
     public void addAccountSpendTransaction(Account from, Spend to, String sMoney) {
-        from.addTransaction(to, sMoney);
+        from.addTransaction(to, sMoney, false);
     }
 
     public void addGoalSpendTransaction(Goal from, Spend to, String sMoney) {
-        from.addTransaction(to, sMoney);
+        from.addTransaction(to, sMoney, false);
+    }
+
+    public void addGoalAccountTransaction(Goal from, Account to, String sMoney) {
+        from.addTransaction(to, sMoney, false);
+    }
+
+    public void addGoalGoalTransaction(Goal from, Goal to, String sMoney) {
+        from.addTransaction(to, sMoney, false);
     }
 
     public void removeInCome(InCome inCome) {
@@ -142,5 +154,4 @@ public class CoinApplication {
             return goals;
         else return null;
     }
-
 }

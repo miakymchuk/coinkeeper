@@ -20,15 +20,15 @@ public class TestAccount {
          MoneyFlow agricole = new Account(titleAgricole, localCurrency);
          MoneyFlow cash = new Account(titleCash, localCurrency);
 
-        ((InCome)salary).addTransaction(agricole, "1000.00");
-        ((InCome)salary).addTransaction(agricole, "2000.52");
-        ((InCome)salary).addTransaction(agricole, "2000.52");
-        ((InCome)salary).addTransaction(cash, "400");
+        ((InCome)salary).addTransaction(agricole, "1000.00", true);
+        ((InCome)salary).addTransaction(agricole, "2000.52", true);
+        ((InCome)salary).addTransaction(agricole, "2000.52", true);
+        ((InCome)salary).addTransaction(cash, "400", true);
 
-        ((InCome)taxi).addTransaction(cash, "150.00");
-        ((InCome)taxi).addTransaction(cash, "100");
-        ((InCome)taxi).addTransaction(cash, "50");
-        ((InCome)taxi).addTransaction(agricole, "200");
+        ((InCome)taxi).addTransaction(cash, "150.00", true);
+        ((InCome)taxi).addTransaction(cash, "100", true);
+        ((InCome)taxi).addTransaction(cash, "50", true);
+        ((InCome)taxi).addTransaction(agricole, "200", true);
 
         Assert.assertEquals(salary.getTotal().toString(), "UAH 5401.04");
         Assert.assertEquals(taxi.getTotal().toString(), "UAH 500.00");
