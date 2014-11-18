@@ -1,5 +1,7 @@
 package com.mlucky.coin.app.impl;
 
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 import org.joda.money.Money;
 
 import java.util.ArrayList;
@@ -8,16 +10,12 @@ import java.util.List;
 /**
  * Created by m.iakymchuk on 03.11.14.
  */
+
+@DatabaseTable(tableName = "InComeTable")
 public class InCome extends MoneyFlow {
 
-//    @Override
-//    public void addTransaction(MoneyFlow to, String money) {
-//        super.addTransaction(to, money);
-//        Money inComeMoney = Money.parse(getCurrency() + " " + money);
-//        this.increaseTotal(inComeMoney);
-//        to.increaseTotal(inComeMoney);
-//    }
-    private Budget budget;
+  /*  @DatabaseField(foreign = true)
+    private Budget budget;*/
 
     public InCome() {
         super();

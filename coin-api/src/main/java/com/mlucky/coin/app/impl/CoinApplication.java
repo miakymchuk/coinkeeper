@@ -1,10 +1,17 @@
 package com.mlucky.coin.app.impl;
 
 
+import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.dao.DaoManager;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.field.ForeignCollectionField;
+import com.j256.ormlite.misc.BaseDaoEnabled;
+import com.j256.ormlite.table.DatabaseTable;
 import org.joda.money.CurrencyUnit;
 import org.joda.money.Money;
-import sun.net.www.content.text.Generic;
 
+
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -12,21 +19,45 @@ import java.util.List;
 /**
  * Created by m.iakymchuk on 05.11.2014.
  */
-public class CoinApplication {
+
+@DatabaseTable(tableName = "CoinApplicationTable")
+public class CoinApplication extends BaseDaoEnabled {
     private static CoinApplication coinApplication = null;
+
+    @DatabaseField
     private static final String localCurrency = "UAH";
+
+    @DatabaseField
     private final Date installDate;
+
+    @DatabaseField
     private Date currentDate;
 
+   // @ForeignCollectionField(eager = true)
     List<InCome> inComeSources;
+
+    //@ForeignCollectionField(eager = true)
     List<Account> accounts;
+
+   // @ForeignCollectionField(eager = true)
     List<Spend> spends;
+
+   // @ForeignCollectionField(eager = true)
     List<Goal> goals;
 
+    //@DatabaseField
     private Money currentBalance;
+
+   // @DatabaseField
     private Money currentSpend;
+
+   // @DatabaseField
     private Money plannedSpend;
+
+    //@DatabaseField
     private Money spendBudget;
+
+    //@DatabaseField
     private Money planedInCome;
 
     private CoinApplication() {
@@ -54,9 +85,13 @@ public class CoinApplication {
         this.currentDate = currentDate;
     }
 
-    public InCome addIncome(String title) {
+    public InCome addIncome(String title, Dao<InCome, Integer> incomeDao) throws SQLException {
        InCome income = new InCome(title, localCurrency);
+
+       income.setDao(incomeDao);
+       income.create();
        this.inComeSources.add(income);
+       //this.update();
        return income;
     }
 

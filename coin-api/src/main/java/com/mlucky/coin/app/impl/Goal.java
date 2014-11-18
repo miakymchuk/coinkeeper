@@ -1,13 +1,19 @@
 package com.mlucky.coin.app.impl;
 
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 import org.joda.money.Money;
 
 /**
  * Created by m.iakymchuk on 04.11.2014.
  */
+@DatabaseTable(tableName = "GoalTable")
 public class Goal extends MoneyFlow {
 
+    @DatabaseField
     private boolean isClosed;
+
+    //@DatabaseField
     private Budget budget;
 
     @Override

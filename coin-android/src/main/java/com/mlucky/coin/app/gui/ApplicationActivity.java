@@ -6,17 +6,30 @@ import android.content.ClipDescription;
 import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.*;
 import android.widget.*;
+import com.j256.ormlite.android.apptools.OpenHelperManager;
+import com.j256.ormlite.dao.Dao;
+import com.mlucky.coin.app.db.DatabaseHelper;
 import com.mlucky.coin.app.impl.*;
+
+import java.sql.SQLException;
+import java.util.List;
 
 public class ApplicationActivity extends Activity {
     CoinApplication coinApplication = CoinApplication.getCoinApplication();
+    private final String LOG_TAG = getClass().getSimpleName();
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_application);
+
+            //DatabaseHelper myDatabase = getHelper();
+
+            setContentView(R.layout.activity_application);
     }
 
 
@@ -46,4 +59,7 @@ public class ApplicationActivity extends Activity {
         addDialog.setArguments(bundle);
         addDialog.show(getFragmentManager(), "dialog_add_item");
     }
+
+
+
 }

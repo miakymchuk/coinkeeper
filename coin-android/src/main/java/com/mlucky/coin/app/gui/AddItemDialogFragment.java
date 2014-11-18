@@ -10,14 +10,20 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.*;
+import com.j256.ormlite.android.apptools.OpenHelperManager;
+import com.j256.ormlite.dao.Dao;
+import com.mlucky.coin.app.db.DatabaseHelper;
 import com.mlucky.coin.app.impl.*;
 
 import java.net.URLClassLoader;
+import java.sql.SQLException;
 
 /**
  * Created by m.iakymchuk on 12.11.2014.
  */
 public class AddItemDialogFragment extends DialogFragment {
+    private DatabaseHelper databaseHelper = null;
+
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         final Activity coinActivity = getActivity();
@@ -43,7 +49,12 @@ public class AddItemDialogFragment extends DialogFragment {
                 switch (getArguments().getInt("layoutId")) {
                     case R.id.income_add_button:
                         layoutId = R.id.income_linear_layout;
-                        moneyFlowItem = coinApplication.addIncome(titleItem);
+                        try {
+                            Dao<InCome, Integer> incomeDao =  getHelper().getInComeDao();
+                            moneyFlowItem = coinApplication.addIncome(titleItem, incomeDao);
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
                         break;
                     case R.id.account_add_button:
                         layoutId = R.id.account_linear_layout;
@@ -80,7 +91,7 @@ public class AddItemDialogFragment extends DialogFragment {
                 final String itemType = moneyFlowItem.getClass().getSimpleName();
                 final int itemIndex = coinApplication.getMoneyFlowList(itemType).indexOf(moneyFlowItem);
                 final int currentLayoutId = inComeLayout.getId();
-                //final int itemLayoutId = itemLayout.getId();
+
                 if (layoutId != R.id.spend_linear_layout) {
 
 
@@ -171,5 +182,21 @@ public class AddItemDialogFragment extends DialogFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+    }
+
+    private DatabaseHelper getHelper() {
+        if (databaseHelper == null) {
+            databaseHelper = new DatabaseHelper(getActivity().getApplicationContext());
+        }
+        return databaseHelper;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (databaseHelper != null) {
+            OpenHelperManager.releaseHelper();
+            databaseHelper = null;
+        }
     }
 }

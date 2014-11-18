@@ -36,5 +36,7 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:19.+'
+    compile 'com.j256.ormlite:ormlite-android:4.48'
+    compile 'org.joda:joda-money:0.9.1'
     compile project(':coin-api')
 }
