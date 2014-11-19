@@ -1,6 +1,7 @@
 package com.mlucky.coin.app.impl;
 
 import com.j256.ormlite.dao.ForeignCollection;
+import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.misc.BaseDaoEnabled;
@@ -14,7 +15,7 @@ import java.util.List;
 /**
  * Created by m.iakymchuk on 03.11.14.
  */
-@DatabaseTable(tableName = "MonewFlowTable")
+//@DatabaseTable(tableName = "MoneyFlow")
 public abstract class MoneyFlow extends BaseDaoEnabled {
     @DatabaseField(generatedId = true)
     public long id;
@@ -25,10 +26,13 @@ public abstract class MoneyFlow extends BaseDaoEnabled {
     @DatabaseField
     private String title;
 
-   // @DatabaseField
+    @DatabaseField
+    private int viewPosition;
+
+    @DatabaseField(dataType = DataType.SERIALIZABLE)
     private Money total;
 
-    //@ForeignCollectionField(eager = true)
+    @ForeignCollectionField(eager = true)
     private Collection<Transaction> transactions = new ArrayList<Transaction>();
 
     public void addTransaction(MoneyFlow to, String money, boolean isIncreasing) {
@@ -108,4 +112,5 @@ public abstract class MoneyFlow extends BaseDaoEnabled {
     public Collection<Transaction> getTransactions() {
         return transactions;
     }
+
 }

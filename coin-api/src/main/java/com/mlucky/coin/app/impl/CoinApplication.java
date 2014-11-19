@@ -3,6 +3,8 @@ package com.mlucky.coin.app.impl;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
+import com.j256.ormlite.dao.ForeignCollection;
+import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.misc.BaseDaoEnabled;
@@ -13,6 +15,7 @@ import org.joda.money.Money;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -22,52 +25,50 @@ import java.util.List;
 
 @DatabaseTable(tableName = "CoinApplicationTable")
 public class CoinApplication extends BaseDaoEnabled {
+    @DatabaseField(id = true)
+    private int id = 1;
     private static CoinApplication coinApplication = null;
 
     @DatabaseField
     private static final String localCurrency = "UAH";
 
-    @DatabaseField
+    @DatabaseField(dataType = DataType.DATE)
     private final Date installDate;
 
-    @DatabaseField
+    @DatabaseField(dataType = DataType.DATE)
     private Date currentDate;
 
-   // @ForeignCollectionField(eager = true)
-    List<InCome> inComeSources;
+   // @ForeignCollectionField(eager = true, maxEagerLevel = 2)
+    List<InCome> inComeSources =  new ArrayList<InCome>();
 
-    //@ForeignCollectionField(eager = true)
-    List<Account> accounts;
+   // @ForeignCollectionField(eager = true, maxEagerLevel = 2)
+    List<Account> accounts = new ArrayList<Account>();
 
-   // @ForeignCollectionField(eager = true)
-    List<Spend> spends;
+    //@ForeignCollectionField(eager = true, maxEagerLevel = 2)
+    List<Spend> spends = new ArrayList<Spend>();
 
-   // @ForeignCollectionField(eager = true)
-    List<Goal> goals;
+   // @ForeignCollectionField(eager = true, maxEagerLevel = 2)
+    List<Goal> goals  = new ArrayList<Goal>();
 
-    //@DatabaseField
+    @DatabaseField(canBeNull = true, dataType = DataType.SERIALIZABLE)
     private Money currentBalance;
 
-   // @DatabaseField
+    @DatabaseField(canBeNull = true, dataType = DataType.SERIALIZABLE)
     private Money currentSpend;
 
-   // @DatabaseField
+    @DatabaseField(canBeNull = true, dataType = DataType.SERIALIZABLE)
     private Money plannedSpend;
 
-    //@DatabaseField
+    @DatabaseField(canBeNull = true, dataType = DataType.SERIALIZABLE)
     private Money spendBudget;
 
-    //@DatabaseField
+    @DatabaseField(canBeNull = true, dataType = DataType.SERIALIZABLE)
     private Money planedInCome;
 
     private CoinApplication() {
         super();
         this.installDate = new Date();
         this.currentDate = new Date();
-        this.inComeSources =  new ArrayList<InCome>();
-        this.accounts =  new ArrayList<Account>();
-        this.spends = new ArrayList<Spend>();
-        this.goals = new ArrayList<Goal>();
         CurrencyUnit local = CurrencyUnit.getInstance(localCurrency);
         this.currentBalance = Money.zero(local);
         this.currentSpend = Money.zero(local);
@@ -77,8 +78,18 @@ public class CoinApplication extends BaseDaoEnabled {
         coinApplication = this;
     }
 
-    public static synchronized CoinApplication getCoinApplication() {
-        return (coinApplication == null) ? new CoinApplication() : coinApplication;
+    public static synchronized CoinApplication getCoinApplication(Dao<CoinApplication, Integer> coinDao) throws SQLException {
+        if (coinApplication == null) {
+            coinApplication = coinDao.queryForId(1);
+        }
+        if (coinApplication == null) {
+            CoinApplication tmp = new CoinApplication();
+            tmp.setDao(coinDao);
+            tmp.create();
+            return tmp;
+        } else {
+            return coinApplication;
+        }
     }
 
     public void setCurrentDate(Date currentDate) {
@@ -87,28 +98,32 @@ public class CoinApplication extends BaseDaoEnabled {
 
     public InCome addIncome(String title, Dao<InCome, Integer> incomeDao) throws SQLException {
        InCome income = new InCome(title, localCurrency);
-
        income.setDao(incomeDao);
        income.create();
        this.inComeSources.add(income);
-       //this.update();
        return income;
     }
 
-    public Account addAccount(String title) {
+    public Account addAccount(String title, Dao<Account, Integer>accountDao) throws SQLException {
         Account account = new Account(title, localCurrency);
+        account.setDao(accountDao);
+        account.create();
         this.accounts.add(account);
         return account;
     }
 
-    public Spend addSpend(String title) {
+    public Spend addSpend(String title, Dao<Spend, Integer> spendDao) throws SQLException {
         Spend spend = new Spend(title, localCurrency);
+        spend.setDao(spendDao);
+        spend.create();
         this.spends.add(spend);
         return spend;
     }
 
-    public Goal addGoal(String title) {
+    public Goal addGoal(String title, Dao<Goal, Integer> goalDao) throws SQLException {
         Goal goal = new Goal(title, localCurrency);
+        goal.setDao(goalDao);
+        goal.create();
         this.goals.add(goal);
         return goal;
     }
@@ -188,5 +203,27 @@ public class CoinApplication extends BaseDaoEnabled {
         else if ("Goal".equals(type))
             return goals;
         else return null;
+    }
+
+    public static boolean isDragAllowed(String dragFromItemType, String dropToItemType, int dragFromItemIndex,int  dropToItemIndex) {
+        if (("InCome".equals(dragFromItemType) && "InCome".equals(dropToItemType)) ||
+            ("InCome".equals(dragFromItemType) && "Spend".equals(dropToItemType)) ||
+            ("InCome".equals(dragFromItemType) && "Goal".equals(dropToItemType)) ||
+            ("Account".equals(dragFromItemType) && "Account".equals(dropToItemType)
+                && dragFromItemIndex == dropToItemIndex) ||
+            ("Goal".equals(dragFromItemType) && "Goal".equals(dropToItemType)
+                && dragFromItemIndex == dropToItemIndex)) {
+            return false;
+        }
+        return true;
+    }
+
+    public void loadEntityFromDatabase(Dao<InCome, Integer> incomeDao, Dao<Account, Integer> accountDao,
+                                       Dao<Spend, Integer> spendDao, Dao<Goal, Integer> goalDao) throws SQLException {
+        this.inComeSources = incomeDao.queryForAll();
+        this.accounts = accountDao.queryForAll();
+        this.spends = spendDao.queryForAll();
+        this.goals = goalDao.queryForAll();
+
     }
 }

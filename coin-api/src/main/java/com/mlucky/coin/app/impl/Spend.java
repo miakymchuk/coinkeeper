@@ -7,10 +7,11 @@ import org.joda.money.Money;
 /**
  * Created by m.iakymchuk on 03.11.14.
  */
-@DatabaseTable(tableName = "SpendTeable")
+@DatabaseTable(tableName = "Spend")
 public class Spend extends MoneyFlow {
 
-   // @DatabaseField
+
+    @DatabaseField(foreign = true)
     private Budget budget;
 
     public void setBudget(Budget budget) {
@@ -19,6 +20,7 @@ public class Spend extends MoneyFlow {
 
     public Spend(String title, String currency) {
         super(title, currency);
+        this.budget = new Budget(getCurrency());
     }
 
     public Spend() {

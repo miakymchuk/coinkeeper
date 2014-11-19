@@ -11,11 +11,11 @@ import java.util.List;
  * Created by m.iakymchuk on 03.11.14.
  */
 
-@DatabaseTable(tableName = "InComeTable")
+@DatabaseTable(tableName = "InCome")
 public class InCome extends MoneyFlow {
 
-  /*  @DatabaseField(foreign = true)
-    private Budget budget;*/
+    @DatabaseField(foreign = true)
+    private Budget budget;
 
     public InCome() {
         super();
@@ -23,5 +23,6 @@ public class InCome extends MoneyFlow {
 
     public InCome(String title, String currency) {
         super(title, currency);
+        budget = new Budget(getCurrency());
     }
 }

@@ -18,18 +18,28 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class ApplicationActivity extends Activity {
-    CoinApplication coinApplication = CoinApplication.getCoinApplication();
+    //CoinApplication coinApplication = CoinApplication.getCoinApplication();
     private final String LOG_TAG = getClass().getSimpleName();
-
+    private DatabaseHelper databaseHelper = null;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        CoinApplication coinApplication;
+        try {
+            Dao<CoinApplication, Integer> coinDao = getHelper().getCoinApplicationDao();
+            coinApplication = CoinApplication.getCoinApplication(coinDao);
+            Dao<InCome, Integer> incomeDao =  getHelper().getInComeDao();
+            Dao<Account, Integer> accountDao =  getHelper().getAccountDao();
+            Dao<Spend, Integer> spendDao =  getHelper().getSpendDao();
+            Dao<Goal, Integer> goalDao =  getHelper().getGoalDao();
+            coinApplication.loadEntityFromDatabase(incomeDao, accountDao, spendDao, goalDao);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
-            //DatabaseHelper myDatabase = getHelper();
-
-            setContentView(R.layout.activity_application);
+        setContentView(R.layout.activity_application);
     }
 
 
@@ -60,6 +70,20 @@ public class ApplicationActivity extends Activity {
         addDialog.show(getFragmentManager(), "dialog_add_item");
     }
 
+    private DatabaseHelper getHelper() {
+        if (databaseHelper == null) {
+            databaseHelper = new DatabaseHelper(getApplicationContext());
+        }
+        return databaseHelper;
+    }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (databaseHelper != null) {
+            OpenHelperManager.releaseHelper();
+            databaseHelper = null;
+        }
+    }
 
 }

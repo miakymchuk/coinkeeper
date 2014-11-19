@@ -1,5 +1,6 @@
 package com.mlucky.coin.app.impl;
 
+import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.misc.BaseDaoEnabled;
 import com.j256.ormlite.table.DatabaseTable;
@@ -13,10 +14,15 @@ import java.util.Date;
 @DatabaseTable(tableName = "TransactionTable")
 public class Transaction extends BaseDaoEnabled {
 
-   /* @DatabaseField(canBeNull = true, foreign = true)
-    private InCome moneyFlow;*/
+    @DatabaseField(canBeNull = true, foreign = true, foreignAutoRefresh = true)
+    private InCome inCome;
+    @DatabaseField(canBeNull = true, foreign = true, foreignAutoRefresh = true)
+    private Spend spend;
+    @DatabaseField(canBeNull = true, foreign = true, foreignAutoRefresh = true)
+    private Goal goal;
+    @DatabaseField(canBeNull = true, foreign = true, foreignAutoRefresh = true)
+    private Account account;
 
-    //private static long idCounter = 0;
     @DatabaseField(generatedId = true)
     private long id;
 
@@ -29,24 +35,19 @@ public class Transaction extends BaseDaoEnabled {
     @DatabaseField
     private Date transactionDate;
 
-   // @DatabaseField
+    @DatabaseField(dataType = DataType.SERIALIZABLE)
     private Money moneyCount;
 
     @DatabaseField
     private boolean isIncreasing;
 
     public Transaction(MoneyFlow from, MoneyFlow to, Money sumOfTransaction, boolean isIncreasing) {
-        //this.id = createdId();
         this.from = from;
         this.to = to;
         this.moneyCount = sumOfTransaction;
         this.transactionDate = new Date();
         this.isIncreasing = isIncreasing;
     }
-
-  /*  public static synchronized String createdId() {
-        return String.valueOf(idCounter++);
-    }*/
 
     public Money getMoneyCount() {
         return moneyCount;
@@ -55,10 +56,6 @@ public class Transaction extends BaseDaoEnabled {
     public void setMoneyCount(Money moneyCount) {
         this.moneyCount = moneyCount;
     }
-
-//    public String getId() {
-//        return id;
-//    }
 
     public MoneyFlow getFrom() {
         return from;

@@ -24,6 +24,10 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
     // the DAO object we use to access the InCome table
     private Dao<InCome, Integer> incomeDao = null;
+    private Dao<Account, Integer> accountDao = null;
+    private Dao<Spend, Integer> spendDao = null;
+    private Dao<Goal, Integer> goalDao = null;
+    private Dao<CoinApplication, Integer> coinApplicationDao = null;
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -43,7 +47,8 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             TableUtils.createTable(connectionSource, Spend.class);
             TableUtils.createTable(connectionSource, Goal.class);
             TableUtils.createTable(connectionSource, Transaction.class);
-            TableUtils.createTable(connectionSource, MoneyFlow.class);
+          //  TableUtils.createTable(connectionSource, MoneyFlow.class);
+            TableUtils.createTable(connectionSource, Budget.class);
 
            /* // here we try inserting data in the on-create as a test
             Dao<InCome, Integer> dao = getInComeDao();
@@ -74,7 +79,8 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             TableUtils.dropTable(connectionSource, Spend.class, true);
             TableUtils.dropTable(connectionSource, Goal.class, true);
             TableUtils.dropTable(connectionSource, Transaction.class, true);
-            TableUtils.dropTable(connectionSource, MoneyFlow.class, true);
+            TableUtils.dropTable(connectionSource, Budget.class, true);
+           // TableUtils.dropTable(connectionSource, MoneyFlow.class, true);
             // after we drop the old databases, we create the new ones
             onCreate(db, connectionSource);
         } catch (SQLException e) {
@@ -94,6 +100,34 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         return incomeDao;
     }
 
+    public Dao<Account, Integer> getAccountDao() throws SQLException {
+        if (accountDao == null) {
+            accountDao = getDao(Account.class);
+        }
+        return accountDao;
+    }
+
+    public Dao<Spend, Integer> getSpendDao() throws SQLException {
+        if (spendDao == null) {
+            spendDao = getDao(Spend.class);
+        }
+        return spendDao;
+    }
+
+    public Dao<Goal, Integer> getGoalDao() throws SQLException {
+        if (goalDao == null) {
+            goalDao = getDao(Goal.class);
+        }
+        return goalDao;
+    }
+
+    public Dao<CoinApplication, Integer> getCoinApplicationDao() throws SQLException {
+        if (coinApplicationDao == null) {
+            coinApplicationDao = getDao(CoinApplication.class);
+        }
+        return coinApplicationDao;
+    }
+
     /**
      * Close the database connections and clear any cached DAOs.
      */
@@ -101,7 +135,9 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     public void close() {
         super.close();
         incomeDao = null;
+        accountDao = null;
+        spendDao = null;
+        goalDao = null;
+        coinApplicationDao = null;
     }
-
-
 }

@@ -17,6 +17,7 @@ import com.mlucky.coin.app.impl.*;
 
 import java.net.URLClassLoader;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 /**
  * Created by m.iakymchuk on 12.11.2014.
@@ -28,7 +29,6 @@ public class AddItemDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         final Activity coinActivity = getActivity();
 
-        final CoinApplication coinApplication = CoinApplication.getCoinApplication();
         final String INCOME_VIEW_TAG = "income_index";
 
         LayoutInflater inflater = coinActivity.getLayoutInflater();
@@ -42,34 +42,40 @@ public class AddItemDialogFragment extends DialogFragment {
         builder.setPositiveButton(R.string.set_title, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-
                 int layoutId = 0;
                 MoneyFlow moneyFlowItem = null;
                 String titleItem = titleInput.getText().toString();
-                switch (getArguments().getInt("layoutId")) {
-                    case R.id.income_add_button:
-                        layoutId = R.id.income_linear_layout;
-                        try {
+
+                CoinApplication coinApplication = null;
+                try {
+                    Dao<CoinApplication, Integer> coinDao = getHelper().getCoinApplicationDao();
+                    coinApplication = CoinApplication.getCoinApplication(coinDao);
+                    //coinApplication.refresh();
+                    switch (getArguments().getInt("layoutId")) {
+                        case R.id.income_add_button:
+                            layoutId = R.id.income_linear_layout;
                             Dao<InCome, Integer> incomeDao =  getHelper().getInComeDao();
                             moneyFlowItem = coinApplication.addIncome(titleItem, incomeDao);
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                        }
-                        break;
-                    case R.id.account_add_button:
-                        layoutId = R.id.account_linear_layout;
-                        moneyFlowItem = coinApplication.addAccount(titleItem);
-                        break;
-                    case R.id.spend_add_button:
-                        layoutId = R.id.spend_linear_layout;
-                        moneyFlowItem = coinApplication.addSpend(titleItem);
-                        break;
-                    case R.id.goal_add_button:
-                        layoutId = R.id.goal_linear_layout;
-                        moneyFlowItem = coinApplication.addGoal(titleItem);
-                        break;
+                            break;
+                        case R.id.account_add_button:
+                            layoutId = R.id.account_linear_layout;
+                            Dao<Account, Integer> accountDao =  getHelper().getAccountDao();
+                            moneyFlowItem = coinApplication.addAccount(titleItem, accountDao);
+                            break;
+                        case R.id.spend_add_button:
+                            layoutId = R.id.spend_linear_layout;
+                            Dao<Spend, Integer> spendDao =  getHelper().getSpendDao();
+                            moneyFlowItem = coinApplication.addSpend(titleItem, spendDao);
+                            break;
+                        case R.id.goal_add_button:
+                            layoutId = R.id.goal_linear_layout;
+                            Dao<Goal, Integer> goalDao =  getHelper().getGoalDao();
+                            moneyFlowItem = coinApplication.addGoal(titleItem, goalDao);
+                            break;
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
                 }
-
                 LayoutInflater layoutInflater = coinActivity.getLayoutInflater();
                 LinearLayout inComeLayout = (LinearLayout) coinActivity.findViewById(layoutId);
                 LinearLayout itemLayout =
@@ -93,8 +99,6 @@ public class AddItemDialogFragment extends DialogFragment {
                 final int currentLayoutId = inComeLayout.getId();
 
                 if (layoutId != R.id.spend_linear_layout) {
-
-
                     itemLayout.setOnLongClickListener(new View.OnLongClickListener() {
                         @Override
                         public boolean onLongClick(View view) {
@@ -123,20 +127,8 @@ public class AddItemDialogFragment extends DialogFragment {
                                 case DragEvent.ACTION_DRAG_STARTED:
                                     String dropFromItemType = ((Bundle)dragEvent.getLocalState()).getString("itemType");
                                     int itemPosition = ((Bundle)dragEvent.getLocalState()).getInt("itemIndex");
-                                    if ("InCome".equals(dropFromItemType) && "InCome".equals(itemType)) {
-                                        return false;
-                                    } else if ("InCome".equals(dropFromItemType) && "Spend".equals(itemType)) {
-                                        return false;
-                                    } else if ("InCome".equals(dropFromItemType) && "Goal".equals(itemType)) {
-                                        return false;
-                                    } else if ("Account".equals(dropFromItemType) && "Account".equals(itemType)
-                                            && itemPosition == itemIndex){
-                                        return false;
-                                    } else if ("Goal".equals(dropFromItemType) && "Goal".equals(itemType)
-                                            && itemPosition == itemIndex){
-                                        return false;
-                                    }
-                                    return true;
+
+                                    return  CoinApplication.isDragAllowed(dropFromItemType, itemType, itemPosition, itemIndex);
                                 case DragEvent.ACTION_DRAG_ENTERED:
 
                                     return true;
@@ -157,7 +149,6 @@ public class AddItemDialogFragment extends DialogFragment {
 
                                     FragmentManager fr = coinActivity.getFragmentManager();
                                     transactionDialog.show(fr , "dialog_transaction");
-
 
                                     return true;
                             }

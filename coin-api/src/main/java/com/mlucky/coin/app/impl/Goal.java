@@ -7,7 +7,7 @@ import org.joda.money.Money;
 /**
  * Created by m.iakymchuk on 04.11.2014.
  */
-@DatabaseTable(tableName = "GoalTable")
+@DatabaseTable(tableName = "Goal")
 public class Goal extends MoneyFlow {
 
     @DatabaseField
