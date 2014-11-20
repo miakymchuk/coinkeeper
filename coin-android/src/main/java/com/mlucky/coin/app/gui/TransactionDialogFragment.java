@@ -52,25 +52,11 @@ public class TransactionDialogFragment extends DialogFragment {
                 int toIndex = getArguments().getInt("toIndex");
                 String fromItemType = getArguments().getString("fromItemType");
                 String toItemType = getArguments().getString("toItemType");
-                //Class.forName(fromItemType).newInstance();
-                Object from = ((ArrayList)coinApplication.getMoneyFlowList(fromItemType)).get(fromIndex);
-                Object to = ((ArrayList)coinApplication.getMoneyFlowList(toItemType)).get(toIndex);
 
-                if (fromItemType.equals("InCome") && toItemType.equals("Account")) {
-                    coinApplication.addInComeAccountTransaction((InCome) from, (Account) to, transactionText.getText().toString());
-                } else if (fromItemType.equals("Account") && toItemType.equals("Spend")) {
-                    coinApplication.addAccountSpendTransaction((Account) from, (Spend) to, transactionText.getText().toString());
-                } else if (fromItemType.equals("Account") && toItemType.equals("Goal")) {
-                    coinApplication.addAccountGoalTransaction((Account) from, (Goal) to, transactionText.getText().toString());
-                } else if (fromItemType.equals("Goal") && toItemType.equals("Spend")) {
-                    coinApplication.addGoalSpendTransaction((Goal) from, (Spend) to, transactionText.getText().toString());
-                } else if (fromItemType.equals("Goal") && toItemType.equals("Goal")) {
-                    coinApplication.addGoalGoalTransaction((Goal) from, (Goal) to, transactionText.getText().toString());
-                } else if (fromItemType.equals("Account") && toItemType.equals("Account")) {
-                    coinApplication.addAccountAccountTransaction((Account) from, (Account) to, transactionText.getText().toString());
-                }else if (fromItemType.equals("Goal") && toItemType.equals("Account")) {
-                    coinApplication.addGoalAccountTransaction((Goal) from, (Account) to, transactionText.getText().toString());
-                }
+                MoneyFlow from = coinApplication.getMoneyFlowList(fromItemType).get(fromIndex);
+                MoneyFlow to = coinApplication.getMoneyFlowList(toItemType).get(toIndex);
+                String itemTitle = transactionText.getText().toString();
+                CoinApplication.startTransaction(from, to , fromItemType, toItemType, itemTitle);
 
                 int fromLayoutId = getArguments().getInt("fromLayoutId");
                 int toLayoutId = getArguments().getInt("toLayoutId");

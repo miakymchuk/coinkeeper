@@ -128,31 +128,31 @@ public class CoinApplication extends BaseDaoEnabled {
         return goal;
     }
 
-    public void addInComeAccountTransaction(InCome from, Account to, String sMoney) {
+    private void addInComeAccountTransaction(InCome from, Account to, String sMoney) {
         from.addTransaction(to, sMoney, true);
     }
 
-    public void addAccountAccountTransaction(Account from, Account to, String sMoney) {
+    private void addAccountAccountTransaction(Account from, Account to, String sMoney) {
         from.addTransaction(to, sMoney, false);
     }
 
-    public void addAccountGoalTransaction(Account from, Goal to,  String sMoney) {
+    private void addAccountGoalTransaction(Account from, Goal to,  String sMoney) {
         from.addTransaction(to, sMoney, false);
     }
 
-    public void addAccountSpendTransaction(Account from, Spend to, String sMoney) {
+    private void addAccountSpendTransaction(Account from, Spend to, String sMoney) {
         from.addTransaction(to, sMoney, false);
     }
 
-    public void addGoalSpendTransaction(Goal from, Spend to, String sMoney) {
+    private void addGoalSpendTransaction(Goal from, Spend to, String sMoney) {
         from.addTransaction(to, sMoney, false);
     }
 
-    public void addGoalAccountTransaction(Goal from, Account to, String sMoney) {
+    private void addGoalAccountTransaction(Goal from, Account to, String sMoney) {
         from.addTransaction(to, sMoney, false);
     }
 
-    public void addGoalGoalTransaction(Goal from, Goal to, String sMoney) {
+    private void addGoalGoalTransaction(Goal from, Goal to, String sMoney) {
         from.addTransaction(to, sMoney, false);
     }
 
@@ -193,7 +193,7 @@ public class CoinApplication extends BaseDaoEnabled {
         return goals;
     }
 
-    public List<?> getMoneyFlowList(String type) {
+    public List<? extends MoneyFlow> getMoneyFlowList(String type) {
         if ("InCome".equals(type))
             return inComeSources;
         else if ("Account".equals(type))
@@ -225,5 +225,23 @@ public class CoinApplication extends BaseDaoEnabled {
         this.spends = spendDao.queryForAll();
         this.goals = goalDao.queryForAll();
 
+    }
+
+    public static void  startTransaction(MoneyFlow from, MoneyFlow to, String fromItemType, String toItemType, String title ) {
+        if (fromItemType.equals("InCome") && toItemType.equals("Account")) {
+            coinApplication.addInComeAccountTransaction((InCome) from, (Account) to, title);
+        } else if (fromItemType.equals("Account") && toItemType.equals("Spend")) {
+            coinApplication.addAccountSpendTransaction((Account) from, (Spend) to, title);
+        } else if (fromItemType.equals("Account") && toItemType.equals("Goal")) {
+            coinApplication.addAccountGoalTransaction((Account) from, (Goal) to,title);
+        } else if (fromItemType.equals("Goal") && toItemType.equals("Spend")) {
+            coinApplication.addGoalSpendTransaction((Goal) from, (Spend) to, title);
+        } else if (fromItemType.equals("Goal") && toItemType.equals("Goal")) {
+            coinApplication.addGoalGoalTransaction((Goal) from, (Goal) to, title);
+        } else if (fromItemType.equals("Account") && toItemType.equals("Account")) {
+            coinApplication.addAccountAccountTransaction((Account) from, (Account) to, title);
+        }else if (fromItemType.equals("Goal") && toItemType.equals("Account")) {
+            coinApplication.addGoalAccountTransaction((Goal) from, (Account) to, title);
+        }
     }
 }
