@@ -1,6 +1,7 @@
 package com.mlucky.coin.app.gui;
 
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -28,9 +29,9 @@ public class TransactionDialogFragment extends DialogFragment {
     private DatabaseHelper databaseHelper = null;
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        LayoutInflater inflater = getActivity().getLayoutInflater();
+        final ApplicationActivity mActivity = (ApplicationActivity)getActivity();
+        AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+        LayoutInflater inflater = mActivity.getLayoutInflater();
 
         LinearLayout dialogTransactionLayout = (LinearLayout)inflater.inflate(R.layout.dialog_transaction, null);
         final EditText transactionText = (EditText)dialogTransactionLayout.findViewById(R.id.transaction_amount);
@@ -42,7 +43,7 @@ public class TransactionDialogFragment extends DialogFragment {
                 Dao<CoinApplication, Integer> coinDao;
                 CoinApplication coinApplication = null;
                 try {
-                    coinDao = getHelper().getCoinApplicationDao();
+                    coinDao = mActivity.getHelper().getCoinApplicationDao();
                     coinApplication = CoinApplication.getCoinApplication(coinDao);
                 } catch (SQLException e) {
                     e.printStackTrace();
@@ -57,11 +58,11 @@ public class TransactionDialogFragment extends DialogFragment {
                 MoneyFlow to = coinApplication.getMoneyFlowList(toItemType).get(toIndex);
                 String itemTitle = transactionText.getText().toString();
                 try {
-                    Dao<InCome, Integer> inComeDao  = getHelper().getInComeDao();
-                    Dao<Account, Integer> accountDao  = getHelper().getAccountDao();
-                    Dao<Spend, Integer> spendDao  = getHelper().getSpendDao();
-                    Dao<Goal, Integer> goalDao  = getHelper().getGoalDao();
-                    Dao<Transaction, Integer> transactionDao  = getHelper().getTransactionDao();
+                    Dao<InCome, Integer> inComeDao  = mActivity.getHelper().getInComeDao();
+                    Dao<Account, Integer> accountDao  = mActivity.getHelper().getAccountDao();
+                    Dao<Spend, Integer> spendDao  = mActivity.getHelper().getSpendDao();
+                    Dao<Goal, Integer> goalDao  = mActivity.getHelper().getGoalDao();
+                    Dao<Transaction, Integer> transactionDao  = mActivity.getHelper().getTransactionDao();
                     CoinApplication.startTransaction(from, to , fromItemType, toItemType, itemTitle,
                             transactionDao, inComeDao, accountDao, spendDao, goalDao);
                 } catch (SQLException e) {
@@ -100,21 +101,5 @@ public class TransactionDialogFragment extends DialogFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-    }
-
-    private DatabaseHelper getHelper() {
-        if (databaseHelper == null) {
-            databaseHelper = new DatabaseHelper(getActivity().getApplicationContext());
-        }
-        return databaseHelper;
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        if (databaseHelper != null) {
-            OpenHelperManager.releaseHelper();
-            databaseHelper = null;
-        }
     }
 }
