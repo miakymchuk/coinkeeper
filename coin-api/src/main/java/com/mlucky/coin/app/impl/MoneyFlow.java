@@ -1,5 +1,6 @@
 package com.mlucky.coin.app.impl;
 
+import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
@@ -8,6 +9,7 @@ import com.j256.ormlite.misc.BaseDaoEnabled;
 import com.j256.ormlite.table.DatabaseTable;
 import org.joda.money.Money;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -35,10 +37,15 @@ public abstract class MoneyFlow extends BaseDaoEnabled {
     @ForeignCollectionField(eager = true)
     private Collection<Transaction> transactions = new ArrayList<Transaction>();
 
-    public void addTransaction(MoneyFlow to, String money, boolean isIncreasing) {
+    public void addTransaction(MoneyFlow to, String money, boolean isIncreasing,
+                               Dao<Transaction, Integer> transactionDao,
+                               Dao< ? extends MoneyFlow, Integer> fromItemDao,
+                               Dao< ? extends MoneyFlow, Integer> toItemDao) {
         if (money.isEmpty()) return;
         Money sumOfTransaction =  Money.parse(getCurrency() +" "+ money);
         Transaction newTransaction = new Transaction(this, to, sumOfTransaction, isIncreasing);
+
+
         this.transactions.add(newTransaction);
         to.transactions.add(newTransaction);
         Money inComeMoney = Money.parse(getCurrency() + " " + money);
@@ -48,6 +55,17 @@ public abstract class MoneyFlow extends BaseDaoEnabled {
             this.decreaseTotal(inComeMoney);
         }
         to.increaseTotal(inComeMoney);
+        newTransaction.setDao(transactionDao);
+        this.setDao(fromItemDao);
+        to.setDao(toItemDao);
+        try {
+            newTransaction.create();
+            this.update();
+            to.update();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
     }
 
     protected MoneyFlow() {

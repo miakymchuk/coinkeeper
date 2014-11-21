@@ -128,32 +128,39 @@ public class CoinApplication extends BaseDaoEnabled {
         return goal;
     }
 
-    private void addInComeAccountTransaction(InCome from, Account to, String sMoney) {
-        from.addTransaction(to, sMoney, true);
+    private void addInComeAccountTransaction(InCome from, Account to, String sMoney, Dao<Transaction, Integer> transactionDao,
+                                             Dao<InCome, Integer> inComeDao,  Dao<Account, Integer> accountDao) {
+        from.addTransaction(to, sMoney, true, transactionDao, inComeDao, accountDao);
     }
 
-    private void addAccountAccountTransaction(Account from, Account to, String sMoney) {
-        from.addTransaction(to, sMoney, false);
+    private void addAccountAccountTransaction(Account from, Account to, String sMoney, Dao<Transaction, Integer> transactionDao,
+                                              Dao<Account, Integer> fromAccountDao,  Dao<Account, Integer> toAccountDao) {
+        from.addTransaction(to, sMoney, false, transactionDao, fromAccountDao, toAccountDao);
     }
 
-    private void addAccountGoalTransaction(Account from, Goal to,  String sMoney) {
-        from.addTransaction(to, sMoney, false);
+    private void addAccountGoalTransaction(Account from, Goal to,  String sMoney, Dao<Transaction, Integer> transactionDao,
+                                           Dao<Account, Integer> accountDao,  Dao<Goal, Integer> goalDao) {
+        from.addTransaction(to, sMoney, false, transactionDao, accountDao, goalDao);
     }
 
-    private void addAccountSpendTransaction(Account from, Spend to, String sMoney) {
-        from.addTransaction(to, sMoney, false);
+    private void addAccountSpendTransaction(Account from, Spend to, String sMoney, Dao<Transaction, Integer> transactionDao,
+                                            Dao<Account, Integer> accountDao,  Dao<Spend, Integer> spendDao) {
+        from.addTransaction(to, sMoney, false, transactionDao, accountDao, spendDao);
     }
 
-    private void addGoalSpendTransaction(Goal from, Spend to, String sMoney) {
-        from.addTransaction(to, sMoney, false);
+    private void addGoalSpendTransaction(Goal from, Spend to, String sMoney, Dao<Transaction, Integer> transactionDao,
+                                         Dao<Goal, Integer> goalDao,  Dao<Spend, Integer> spendDao) {
+        from.addTransaction(to, sMoney, false, transactionDao, goalDao, spendDao);
     }
 
-    private void addGoalAccountTransaction(Goal from, Account to, String sMoney) {
-        from.addTransaction(to, sMoney, false);
+    private void addGoalAccountTransaction(Goal from, Account to, String sMoney, Dao<Transaction, Integer> transactionDao,
+                                           Dao<Goal, Integer> goalDao,  Dao<Account, Integer> accountDao) {
+        from.addTransaction(to, sMoney, false, transactionDao, goalDao, accountDao);
     }
 
-    private void addGoalGoalTransaction(Goal from, Goal to, String sMoney) {
-        from.addTransaction(to, sMoney, false);
+    private void addGoalGoalTransaction(Goal from, Goal to, String sMoney, Dao<Transaction, Integer> transactionDao,
+                                        Dao<Goal, Integer> fromGoalDao,  Dao<Goal, Integer> toGoalDao) {
+        from.addTransaction(to, sMoney, false, transactionDao, fromGoalDao, toGoalDao);
     }
 
     public void removeInCome(InCome inCome) {
@@ -227,21 +234,24 @@ public class CoinApplication extends BaseDaoEnabled {
 
     }
 
-    public static void  startTransaction(MoneyFlow from, MoneyFlow to, String fromItemType, String toItemType, String title ) {
+    public static void  startTransaction(MoneyFlow from, MoneyFlow to, String fromItemType, String toItemType, String title,
+                                         Dao<Transaction, Integer> transactionDao,
+                                         Dao<InCome, Integer> inComeDao,  Dao<Account, Integer> accountDao,
+                                         Dao<Spend, Integer> spendDao, Dao<Goal, Integer> goalDao) {
         if (fromItemType.equals("InCome") && toItemType.equals("Account")) {
-            coinApplication.addInComeAccountTransaction((InCome) from, (Account) to, title);
+            coinApplication.addInComeAccountTransaction((InCome) from, (Account) to, title, transactionDao, inComeDao, accountDao);
         } else if (fromItemType.equals("Account") && toItemType.equals("Spend")) {
-            coinApplication.addAccountSpendTransaction((Account) from, (Spend) to, title);
+            coinApplication.addAccountSpendTransaction((Account) from, (Spend) to, title, transactionDao, accountDao, spendDao);
         } else if (fromItemType.equals("Account") && toItemType.equals("Goal")) {
-            coinApplication.addAccountGoalTransaction((Account) from, (Goal) to,title);
+            coinApplication.addAccountGoalTransaction((Account) from, (Goal) to,title, transactionDao, accountDao, goalDao);
         } else if (fromItemType.equals("Goal") && toItemType.equals("Spend")) {
-            coinApplication.addGoalSpendTransaction((Goal) from, (Spend) to, title);
+            coinApplication.addGoalSpendTransaction((Goal) from, (Spend) to, title, transactionDao, goalDao, spendDao);
         } else if (fromItemType.equals("Goal") && toItemType.equals("Goal")) {
-            coinApplication.addGoalGoalTransaction((Goal) from, (Goal) to, title);
+            coinApplication.addGoalGoalTransaction((Goal) from, (Goal) to, title, transactionDao, goalDao, goalDao);
         } else if (fromItemType.equals("Account") && toItemType.equals("Account")) {
-            coinApplication.addAccountAccountTransaction((Account) from, (Account) to, title);
+            coinApplication.addAccountAccountTransaction((Account) from, (Account) to, title, transactionDao, accountDao, accountDao);
         }else if (fromItemType.equals("Goal") && toItemType.equals("Account")) {
-            coinApplication.addGoalAccountTransaction((Goal) from, (Account) to, title);
+            coinApplication.addGoalAccountTransaction((Goal) from, (Account) to, title, transactionDao,goalDao, accountDao);
         }
     }
 }

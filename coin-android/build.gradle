@@ -1,5 +1,6 @@
 apply plugin: 'android'
 evaluationDependsOn(':coin-api')
+evaluationDependsOn(':two-way-grid-view-lib')
 
 
 buildscript {
@@ -35,8 +36,10 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile project(':two-way-grid-view-lib')
     compile 'com.android.support:appcompat-v7:19.+'
     compile 'com.j256.ormlite:ormlite-android:4.48'
     compile 'org.joda:joda-money:0.9.1'
     compile project(':coin-api')
+
 }

@@ -1,2 +1,2 @@
-include ':coin-api', ':coin-android'
+include ':coin-api', ':coin-android', ':two-way-grid-view-lib'
 rootProject.name='coinkeeper'

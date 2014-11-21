@@ -27,6 +27,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private Dao<Account, Integer> accountDao = null;
     private Dao<Spend, Integer> spendDao = null;
     private Dao<Goal, Integer> goalDao = null;
+    private Dao<Transaction, Integer> transactionDao = null;
     private Dao<CoinApplication, Integer> coinApplicationDao = null;
 
     public DatabaseHelper(Context context) {
@@ -119,6 +120,12 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             goalDao = getDao(Goal.class);
         }
         return goalDao;
+    }
+    public Dao<Transaction, Integer> getTransactionDao() throws SQLException {
+        if (transactionDao == null) {
+            transactionDao = getDao(Transaction.class);
+        }
+        return transactionDao;
     }
 
     public Dao<CoinApplication, Integer> getCoinApplicationDao() throws SQLException {

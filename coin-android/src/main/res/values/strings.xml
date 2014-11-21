@@ -10,5 +10,6 @@
     <string name="dialog_title_transaction">Please enter amount</string>
     <string name="set_title">Add</string>
     <string name="cancel">Cancel</string>
+    <string name="income_sources">Income Sources</string>
 
 </resources>

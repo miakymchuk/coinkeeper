@@ -13,6 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
+import com.jess.ui.TwoWayAbsListView;
 import com.mlucky.coin.app.db.DatabaseHelper;
 import com.mlucky.coin.app.impl.*;
 
@@ -27,7 +28,6 @@ public class TransactionDialogFragment extends DialogFragment {
     private DatabaseHelper databaseHelper = null;
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
@@ -56,7 +56,19 @@ public class TransactionDialogFragment extends DialogFragment {
                 MoneyFlow from = coinApplication.getMoneyFlowList(fromItemType).get(fromIndex);
                 MoneyFlow to = coinApplication.getMoneyFlowList(toItemType).get(toIndex);
                 String itemTitle = transactionText.getText().toString();
-                CoinApplication.startTransaction(from, to , fromItemType, toItemType, itemTitle);
+                try {
+                    Dao<InCome, Integer> inComeDao  = getHelper().getInComeDao();
+                    Dao<Account, Integer> accountDao  = getHelper().getAccountDao();
+                    Dao<Spend, Integer> spendDao  = getHelper().getSpendDao();
+                    Dao<Goal, Integer> goalDao  = getHelper().getGoalDao();
+                    Dao<Transaction, Integer> transactionDao  = getHelper().getTransactionDao();
+                    CoinApplication.startTransaction(from, to , fromItemType, toItemType, itemTitle,
+                            transactionDao, inComeDao, accountDao, spendDao, goalDao);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+
+
 
                 int fromLayoutId = getArguments().getInt("fromLayoutId");
                 int toLayoutId = getArguments().getInt("toLayoutId");
@@ -77,8 +89,8 @@ public class TransactionDialogFragment extends DialogFragment {
 
     private void setTotal(MoneyFlow moneyFlow,int fromLayoutId, int fromIndex ) {
 
-        LinearLayout fromLinearLayout = (LinearLayout)getActivity().findViewById(fromLayoutId);
-        LinearLayout  fromLinearLayoutItem = (LinearLayout)fromLinearLayout.getChildAt(fromIndex + 1);
+        TwoWayAbsListView fromLinearLayout = (TwoWayAbsListView)getActivity().findViewById(fromLayoutId);
+        LinearLayout  fromLinearLayoutItem = (LinearLayout)fromLinearLayout.getChildAt(fromIndex);
 
         TextView fromTextView = (TextView)fromLinearLayoutItem.findViewById(R.id.item_total);
         fromTextView.setText(moneyFlow.getTotal().toString());
