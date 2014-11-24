@@ -4,6 +4,7 @@ import android.app.*;
 import android.content.ClipData;
 import android.content.ClipDescription;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -89,18 +90,22 @@ public class ApplicationActivity extends Activity {
         mInComeGridView.setAdapter(mMoneyFlowAdaper);
         mInComeGridView.setOnItemClickListener(new TwoWayAdapterView.OnItemClickListener() {
             public void onItemClick(TwoWayAdapterView parent, View v, int position, long id) {
-                showAddButtonDialog(layoutId);
+                //Set action on the add buttons
+                int currentLayoutId = parent.getId();
+                Integer countOfLayoutItems = chosingCountOfItems(parent.getId());
+                if (position == countOfLayoutItems) {
+                    showAddButtonDialog(layoutId);
+                } else {
+                    //Set action on a other items
+                    Intent transactionIntent = new Intent(ApplicationActivity.this, TransactionListActivity.class);
+                    transactionIntent.putExtra("clickedCurrentLayoutId", currentLayoutId);
+                    transactionIntent.putExtra("clickedCurrentItemPosition", position);
+                    startActivity(transactionIntent);
+
+                }
             }
         });
         return mMoneyFlowAdaper;
-    }
-
-    public void  OnAddButtonClick(View view) {
-        DialogFragment addDialog = new AddItemDialogFragment();
-        Bundle bundle = new Bundle();
-        bundle.putInt("layoutId", view.getId());
-        addDialog.setArguments(bundle);
-        addDialog.show(getFragmentManager(), "dialog_add_item");
     }
 
     public DatabaseHelper getHelper() {
@@ -133,5 +138,24 @@ public class ApplicationActivity extends Activity {
 
     public MoneyFlowBaseAdapter getmGoalAdaper() {
         return mGoalAdaper;
+    }
+
+    private Integer chosingCountOfItems(int parentId) {
+        Integer countOfLayoutItems = null;
+        switch (parentId) {
+            case R.id.income_linear_layout:
+                countOfLayoutItems = coinApplication.getInComeSources().size();
+                break;
+            case R.id.account_linear_layout:
+                countOfLayoutItems = coinApplication.getAccounts().size();
+                break;
+            case R.id.spend_linear_layout:
+                countOfLayoutItems = coinApplication.getSpends().size();
+                break;
+            case R.id.goal_linear_layout:
+                countOfLayoutItems = coinApplication.getGoals().size();
+                break;
+        }
+        return countOfLayoutItems;
     }
 }

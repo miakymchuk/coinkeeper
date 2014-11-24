@@ -8,6 +8,7 @@ import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.misc.BaseDaoEnabled;
+import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.table.DatabaseTable;
 import org.joda.money.CurrencyUnit;
 import org.joda.money.Money;
@@ -232,6 +233,13 @@ public class CoinApplication extends BaseDaoEnabled {
         this.spends = spendDao.queryForAll();
         this.goals = goalDao.queryForAll();
 
+    }
+
+    //TODO need apply query builder
+    public List<Transaction> loadTransaction(Dao<Transaction, Integer> transactionDao) throws SQLException{
+        //QueryBuilder<Transaction, Long> tQb = transactionDao.queryBuilder();
+        List<Transaction> transactions = transactionDao.queryForAll();
+        return transactions;
     }
 
     public static void  startTransaction(MoneyFlow from, MoneyFlow to, String fromItemType, String toItemType, String title,

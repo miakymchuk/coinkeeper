@@ -11,14 +11,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
-import com.j256.ormlite.dao.Dao;
 import com.jess.ui.TwoWayGridView;
-import com.mlucky.coin.app.gui.ApplicationActivity;
 import com.mlucky.coin.app.gui.R;
 import com.mlucky.coin.app.gui.TransactionDialogFragment;
 import com.mlucky.coin.app.impl.*;
 
-import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -72,7 +69,11 @@ public class MoneyFlowBaseAdapter extends BaseAdapter {
 
         if (position ==  moneyFlowList.size()) {
             Drawable mIconButton = coinContext.getResources().getDrawable(R.drawable.ic_button_add);
-            mHolder.build(R.string.set_title, mIconButton, R.string.income_sources);
+
+            int parentId = viewGroup.getId();
+            Integer stringTitleAddButtonId = choosingStringOfAddButton(parentId);
+            mHolder.build(R.string.set_title, mIconButton, stringTitleAddButtonId);
+
         } else {
             moneyFlowItem = moneyFlowList.get(position);
             Drawable mIconItem = coinContext.getResources().getDrawable(R.drawable.ic_launcher);
@@ -147,5 +148,26 @@ public class MoneyFlowBaseAdapter extends BaseAdapter {
             });
         }
     }
+
+    private Integer choosingStringOfAddButton(int parentId) {
+        Integer stringTitleAddButtonId = null;
+        switch (parentId) {
+            case R.id.income_linear_layout:
+                stringTitleAddButtonId = R.string.income_sources;
+                break;
+            case R.id.account_linear_layout:
+                stringTitleAddButtonId = R.string.account;
+                break;
+            case R.id.spend_linear_layout:
+                stringTitleAddButtonId = R.string.spend;
+                break;
+            case R.id.goal_linear_layout:
+                stringTitleAddButtonId = R.string.goal;
+                break;
+        }
+        return stringTitleAddButtonId;
+    }
+
+
 }
 

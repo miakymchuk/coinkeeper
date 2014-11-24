@@ -11,5 +11,9 @@
     <string name="set_title">Add</string>
     <string name="cancel">Cancel</string>
     <string name="income_sources">Income Sources</string>
+    <string name="account">Account</string>
+    <string name="spend">Expenses</string>
+    <string name="goal">Goal</string>
+    <string name="budget">Budget:</string>
 
 </resources>

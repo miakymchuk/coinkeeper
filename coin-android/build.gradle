@@ -41,5 +41,4 @@ dependencies {
     compile 'com.j256.ormlite:ormlite-android:4.48'
     compile 'org.joda:joda-money:0.9.1'
     compile project(':coin-api')
-
 }
