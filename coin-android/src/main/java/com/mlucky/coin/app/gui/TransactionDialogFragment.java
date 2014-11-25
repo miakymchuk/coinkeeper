@@ -26,7 +26,13 @@ import java.util.ArrayList;
  * Created by m.iakymchuk on 13.11.2014.
  */
 public class TransactionDialogFragment extends DialogFragment {
-    private DatabaseHelper databaseHelper = null;
+    private final String FROM_ITEM_INDEX_BUNDLE_KEY = "fromIndex";
+    private final String TO_ITEM_INDEX_BUNDLE_KEY = "toIndex";
+    private final String FROM_LAYOUT_ID_BUNDLE_KEY = "fromLayoutId";
+    private final String TO_LAYOUT_ID_BUNDLE_KEY = "toLayoutId";
+    private final String FROM_ITEM_TYPE_BUNDLE_KEY = "fromItemType";
+    private final String TO_ITEM_TYPE_BUNDLE_KEY = "toItemType";
+
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         final ApplicationActivity mActivity = (ApplicationActivity)getActivity();
@@ -49,10 +55,10 @@ public class TransactionDialogFragment extends DialogFragment {
                     e.printStackTrace();
                 }
 
-                int fromIndex = getArguments().getInt("fromIndex");
-                int toIndex = getArguments().getInt("toIndex");
-                String fromItemType = getArguments().getString("fromItemType");
-                String toItemType = getArguments().getString("toItemType");
+                int fromIndex = getArguments().getInt(FROM_ITEM_INDEX_BUNDLE_KEY);
+                int toIndex = getArguments().getInt(TO_ITEM_INDEX_BUNDLE_KEY);
+                String fromItemType = getArguments().getString(FROM_ITEM_TYPE_BUNDLE_KEY);
+                String toItemType = getArguments().getString(TO_ITEM_TYPE_BUNDLE_KEY);
 
                 MoneyFlow from = coinApplication.getMoneyFlowList(fromItemType).get(fromIndex);
                 MoneyFlow to = coinApplication.getMoneyFlowList(toItemType).get(toIndex);
@@ -69,12 +75,10 @@ public class TransactionDialogFragment extends DialogFragment {
                     e.printStackTrace();
                 }
 
-
-
-                int fromLayoutId = getArguments().getInt("fromLayoutId");
-                int toLayoutId = getArguments().getInt("toLayoutId");
-                setTotal((MoneyFlow) from, fromLayoutId, fromIndex);
-                setTotal((MoneyFlow) to, toLayoutId, toIndex);
+                int fromLayoutId = getArguments().getInt(FROM_LAYOUT_ID_BUNDLE_KEY);
+                int toLayoutId = getArguments().getInt(TO_LAYOUT_ID_BUNDLE_KEY);
+                setTotal(from, fromLayoutId, fromIndex);
+                setTotal(to, toLayoutId, toIndex);
             }
         });
 
@@ -89,7 +93,6 @@ public class TransactionDialogFragment extends DialogFragment {
     }
 
     private void setTotal(MoneyFlow moneyFlow,int fromLayoutId, int fromIndex ) {
-
         TwoWayAbsListView fromLinearLayout = (TwoWayAbsListView)getActivity().findViewById(fromLayoutId);
         LinearLayout  fromLinearLayoutItem = (LinearLayout)fromLinearLayout.getChildAt(fromIndex);
 

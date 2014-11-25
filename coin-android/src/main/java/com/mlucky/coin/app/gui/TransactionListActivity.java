@@ -18,27 +18,40 @@ import java.util.List;
  */
 public class TransactionListActivity extends Activity {
     private DatabaseHelper databaseHelper = null;
+    private final String LAYOUT_ID_BUNDLE_KEY = "layoutId";
+    private final String ITEM_POSITION_BUNDLE_KEY = "clickedCurrentItemPosition";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        CoinApplication coinApplication = null;
+
+        Integer clickedCurrentLayoutId = null;
+        Integer clickedCurrentItemPosition = null;
+        Integer layoutIndex = null;
+        if (savedInstanceState == null) {
+            Bundle extras = getIntent().getExtras();
+            clickedCurrentLayoutId = extras.getInt(LAYOUT_ID_BUNDLE_KEY);
+            clickedCurrentItemPosition = extras.getInt(ITEM_POSITION_BUNDLE_KEY);
+            layoutIndex = getlayoutIndex(clickedCurrentLayoutId);
+        }
+
+        CoinApplication coinApplication;
         List transactions = null;
         try {
             Dao<CoinApplication, Integer> coinDao = getHelper().getCoinApplicationDao();
             coinApplication = CoinApplication.getCoinApplication(coinDao);
             Dao<Transaction, Integer> transactionDao = getHelper().getTransactionDao();
-            transactions = coinApplication.loadTransaction(transactionDao);
+            transactions = coinApplication.loadTransaction(transactionDao, layoutIndex, clickedCurrentItemPosition);
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-
         setContentView(R.layout.transaction_list);
-        ListView transactionList = (ListView)findViewById(R.id.transaction_list);
-        TransactionListAdapter transactionAdapter = new TransactionListAdapter(this, transactions);
-        transactionList.setAdapter(transactionAdapter);
 
+        ListView transactionList = (ListView)findViewById(R.id.transaction_list);
+        TransactionListAdapter transactionAdapter = new TransactionListAdapter(this, transactions,
+                clickedCurrentLayoutId, clickedCurrentItemPosition);
+        transactionList.setAdapter(transactionAdapter);
     }
 
     public DatabaseHelper getHelper() {
@@ -54,6 +67,20 @@ public class TransactionListActivity extends Activity {
         if (databaseHelper != null) {
             OpenHelperManager.releaseHelper();
             databaseHelper = null;
+        }
+    }
+
+    private int getlayoutIndex(int clickedCurrentLayoutId) {
+        switch (clickedCurrentLayoutId) {
+            case R.id.income_linear_layout:
+                return 1;
+            case R.id.account_linear_layout:
+                return 2;
+            case R.id.spend_linear_layout:
+                return 3;
+            case R.id.goal_linear_layout:
+                return 4;
+            default: return 0;
         }
     }
 }

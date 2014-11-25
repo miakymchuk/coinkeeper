@@ -20,8 +20,8 @@ public class TransactionHolder {
         this.amount = (TextView)view.findViewById(R.id.transaction_amount);
     }
 
-    public void build(Date date, String title, String amount) {
-        this.date.setText(date.toString());
+    public void build(String date, String title, String amount) {
+        this.date.setText(date);
         this.title.setText(title);
         this.amount.setText(amount);
     }

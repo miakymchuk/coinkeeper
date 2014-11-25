@@ -2,14 +2,10 @@ package com.mlucky.coin.app.gui;
 
 import android.app.*;
 import android.content.ClipData;
-import android.content.ClipDescription;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.*;
-import android.widget.*;
+import android.widget.ImageView;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
 import com.jess.ui.TwoWayAdapterView;
@@ -19,18 +15,25 @@ import com.mlucky.coin.app.db.DatabaseHelper;
 import com.mlucky.coin.app.impl.*;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ApplicationActivity extends Activity {
-    //CoinApplication coinApplication = CoinApplication.getCoinApplication();
-    private CoinApplication coinApplication = null;
+
+    private final String DIALOG_ADD_KEY = "dialog_add_item";
+    private final String LAYOUT_ID_BUNDLE_KEY = "layoutId";
+    private final String ITEM_POSITION_BUNDLE_KEY = "clickedCurrentItemPosition";
+    private final String ITEM_TYPE_BUNDLE_KEY = "itemType";
+    private final String ITEM_INDEX_BUNDLE_KEY = "itemIndex";
+
     private final String LOG_TAG = getClass().getSimpleName();
+
+    private CoinApplication coinApplication = null;
+
     private DatabaseHelper databaseHelper = null;
-    private MoneyFlowBaseAdapter mIncomeAdaper;
-    private MoneyFlowBaseAdapter mAccountAdaper;
-    private MoneyFlowBaseAdapter mSpendAdaper;
-    private MoneyFlowBaseAdapter mGoalAdaper;
+    private MoneyFlowBaseAdapter mIncomeAdapter;
+    private MoneyFlowBaseAdapter mAccountAdapter;
+    private MoneyFlowBaseAdapter mSpendAdapter;
+    private MoneyFlowBaseAdapter mGoalAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,13 +52,11 @@ public class ApplicationActivity extends Activity {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        mIncomeAdaper = setMoneyFlowBaseAapter(coinApplication.getInComeSources(), R.id.income_linear_layout);
-        mAccountAdaper = setMoneyFlowBaseAapter(coinApplication.getAccounts(), R.id.account_linear_layout);
-        mSpendAdaper = setMoneyFlowBaseAapter(coinApplication.getSpends(), R.id.spend_linear_layout);
-        mGoalAdaper = setMoneyFlowBaseAapter(coinApplication.getGoals(), R.id.goal_linear_layout);
-
+        mIncomeAdapter = setMoneyFlowBaseAdapter(coinApplication.getInComeSources(), R.id.income_linear_layout);
+        mAccountAdapter = setMoneyFlowBaseAdapter(coinApplication.getAccounts(), R.id.account_linear_layout);
+        mSpendAdapter = setMoneyFlowBaseAdapter(coinApplication.getSpends(), R.id.spend_linear_layout);
+        mGoalAdapter = setMoneyFlowBaseAdapter(coinApplication.getGoals(), R.id.goal_linear_layout);
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -75,15 +76,16 @@ public class ApplicationActivity extends Activity {
         }
         return super.onOptionsItemSelected(item);
     }
+
     private void showAddButtonDialog(int layoutId) {
         DialogFragment addDialog = new AddItemDialogFragment();
         Bundle bundle = new Bundle();
-        bundle.putInt("layoutId", layoutId);
+        bundle.putInt(LAYOUT_ID_BUNDLE_KEY, layoutId);
         addDialog.setArguments(bundle);
-        addDialog.show(getFragmentManager(), "dialog_add_item");
+        addDialog.show(getFragmentManager(), DIALOG_ADD_KEY);
     }
 
-    private MoneyFlowBaseAdapter setMoneyFlowBaseAapter(List<? extends MoneyFlow> mMoneyFlowList, final int layoutId) {
+    private MoneyFlowBaseAdapter setMoneyFlowBaseAdapter(final List<? extends MoneyFlow> mMoneyFlowList, final int layoutId) {
         TwoWayGridView mInComeGridView = (TwoWayGridView) findViewById(layoutId);
         MoneyFlowBaseAdapter mMoneyFlowAdaper = new MoneyFlowBaseAdapter(this, this.coinApplication,
                 mMoneyFlowList, layoutId);
@@ -91,18 +93,46 @@ public class ApplicationActivity extends Activity {
         mInComeGridView.setOnItemClickListener(new TwoWayAdapterView.OnItemClickListener() {
             public void onItemClick(TwoWayAdapterView parent, View v, int position, long id) {
                 //Set action on the add buttons
-                int currentLayoutId = parent.getId();
-                Integer countOfLayoutItems = chosingCountOfItems(parent.getId());
+                Integer countOfLayoutItems = choosingCountOfItems(layoutId);
                 if (position == countOfLayoutItems) {
                     showAddButtonDialog(layoutId);
                 } else {
                     //Set action on a other items
                     Intent transactionIntent = new Intent(ApplicationActivity.this, TransactionListActivity.class);
-                    transactionIntent.putExtra("clickedCurrentLayoutId", currentLayoutId);
-                    transactionIntent.putExtra("clickedCurrentItemPosition", position);
+                    transactionIntent.putExtra(LAYOUT_ID_BUNDLE_KEY, layoutId);
+                    transactionIntent.putExtra(ITEM_POSITION_BUNDLE_KEY, position);
                     startActivity(transactionIntent);
 
                 }
+            }
+        });
+
+        final String ITEM_VIEW_TAG = "income_index";
+        mInComeGridView.setTag(ITEM_VIEW_TAG);
+        mInComeGridView.setOnItemLongClickListener(new TwoWayAdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(TwoWayAdapterView<?> parent, View view, int position, long id) {
+                Integer countOfLayoutItems = choosingCountOfItems(layoutId);
+                if (position != countOfLayoutItems) {
+                    MoneyFlow moneyFlowItem = mMoneyFlowList.get(position);
+                    final String itemType = moneyFlowItem.getClass().getSimpleName();
+
+                    if (layoutId != R.id.spend_linear_layout) {
+
+                        ClipData dragData = ClipData.newPlainText((CharSequence) parent.getTag(), Integer.toString(position));
+                        ClipData.Item item = new ClipData.Item(itemType);
+                        ClipData.Item itemId = new ClipData.Item(Integer.toString(layoutId));
+                        View.DragShadowBuilder inComeShadow = new View.DragShadowBuilder(view);
+                        dragData.addItem(item);
+                        dragData.addItem(itemId);
+
+                        Bundle permissionParameter = new Bundle();
+                        permissionParameter.putString(ITEM_TYPE_BUNDLE_KEY, itemType);
+                        permissionParameter.putInt(ITEM_INDEX_BUNDLE_KEY, position);
+                        view.startDrag(dragData, inComeShadow, permissionParameter, 0);
+                    }
+                }
+                return false;
             }
         });
         return mMoneyFlowAdaper;
@@ -124,23 +154,23 @@ public class ApplicationActivity extends Activity {
         }
     }
 
-    public MoneyFlowBaseAdapter getmIncomeAdaper() {
-        return mIncomeAdaper;
+    public MoneyFlowBaseAdapter getmIncomeAdapter() {
+        return mIncomeAdapter;
     }
 
-    public MoneyFlowBaseAdapter getmAccountAdaper() {
-        return mAccountAdaper;
+    public MoneyFlowBaseAdapter getmAccountAdapter() {
+        return mAccountAdapter;
     }
 
-    public MoneyFlowBaseAdapter getmSpendAdaper() {
-        return mSpendAdaper;
+    public MoneyFlowBaseAdapter getmSpendAdapter() {
+        return mSpendAdapter;
     }
 
-    public MoneyFlowBaseAdapter getmGoalAdaper() {
-        return mGoalAdaper;
+    public MoneyFlowBaseAdapter getmGoalAdapter() {
+        return mGoalAdapter;
     }
 
-    private Integer chosingCountOfItems(int parentId) {
+    private Integer choosingCountOfItems(int parentId) {
         Integer countOfLayoutItems = null;
         switch (parentId) {
             case R.id.income_linear_layout:

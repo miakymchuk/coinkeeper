@@ -2,7 +2,6 @@ package com.mlucky.coin.app.adapter;
 
 import android.app.Activity;
 import android.app.FragmentManager;
-import android.content.ClipData;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -11,7 +10,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
-import com.jess.ui.TwoWayGridView;
 import com.mlucky.coin.app.gui.R;
 import com.mlucky.coin.app.gui.TransactionDialogFragment;
 import com.mlucky.coin.app.impl.*;
@@ -22,6 +20,17 @@ import java.util.List;
  * Created by m.iakymchuk on 19.11.2014.
  */
 public class MoneyFlowBaseAdapter extends BaseAdapter {
+    private final String ITEM_TYPE_BUNDLE_KEY = "itemType";
+    private final String ITEM_INDEX_BUNDLE_KEY = "itemIndex";
+    private final String FROM_ITEM_INDEX_BUNDLE_KEY = "fromIndex";
+    private final String TO_ITEM_INDEX_BUNDLE_KEY = "toIndex";
+    private final String FROM_LAYOUT_ID_BUNDLE_KEY = "fromLayoutId";
+    private final String TO_LAYOUT_ID_BUNDLE_KEY = "toLayoutId";
+    private final String FROM_ITEM_TYPE_BUNDLE_KEY = "fromItemType";
+    private final String TO_ITEM_TYPE_BUNDLE_KEY = "toItemType";
+
+    private final String DIALOG_TRANSACTION_VIEW_KEY = "dialog_transaction";
+
     private Context coinContext;
     private List<? extends MoneyFlow> moneyFlowList;
     private LayoutInflater inflater;
@@ -58,10 +67,8 @@ public class MoneyFlowBaseAdapter extends BaseAdapter {
 
         IconViewHolder mHolder;
         if (view == null) {
-            TwoWayGridView gridView = (TwoWayGridView)((Activity) coinContext).findViewById(layoutId);
-            view = inflater.inflate(R.layout.item, gridView, false);
+            view = inflater.inflate(R.layout.item, null);
             mHolder = new IconViewHolder(view);
-
             view.setTag(mHolder);
         } else {
             mHolder = (IconViewHolder)view.getTag();
@@ -78,36 +85,17 @@ public class MoneyFlowBaseAdapter extends BaseAdapter {
             moneyFlowItem = moneyFlowList.get(position);
             Drawable mIconItem = coinContext.getResources().getDrawable(R.drawable.ic_launcher);
             mHolder.build(moneyFlowItem.getTitle().toString(), mIconItem, moneyFlowItem.getTotal().toString());
-            setItemListeners(mHolder.getmIconView());
+            setonDragItemListeners(mHolder.getmIconView());
         }
 
         return view;
     }
 
-    private void setItemListeners(final ImageView mIconView) {
+    private void setonDragItemListeners(final ImageView mIconView) {
         final String itemType = moneyFlowItem.getClass().getSimpleName();
         final int itemIndex = coinApplication.getMoneyFlowList(itemType).indexOf(moneyFlowItem);
-        final String INCOME_VIEW_TAG = "income_index";
-        mIconView.setTag(INCOME_VIEW_TAG);
-        if (layoutId != R.id.spend_linear_layout) {
-            mIconView.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View view) {
-                    ClipData dragData = ClipData.newPlainText((CharSequence) view.getTag(), Integer.toString(itemIndex));
-                    ClipData.Item item = new ClipData.Item(itemType);
-                    ClipData.Item itemId = new ClipData.Item(Integer.toString(layoutId));
-                    View.DragShadowBuilder inComeShadow = new View.DragShadowBuilder(mIconView);
-                    dragData.addItem(item);
-                    dragData.addItem(itemId);
-
-                    Bundle permissionParameter = new Bundle();
-                    permissionParameter.putString("itemType", itemType);
-                    permissionParameter.putInt("itemIndex", itemIndex);
-                    view.startDrag(dragData, inComeShadow, permissionParameter, 0);
-                    return false;
-                }
-            });
-        }
+//        final String INCOME_VIEW_TAG = "income_index";
+//        mIconView.setTag(INCOME_VIEW_TAG);
 
         if (layoutId != R.id.income_linear_layout) {
             mIconView.setOnDragListener(new View.OnDragListener() {
@@ -116,8 +104,8 @@ public class MoneyFlowBaseAdapter extends BaseAdapter {
                     final int action = dragEvent.getAction();
                     switch (action) {
                         case DragEvent.ACTION_DRAG_STARTED:
-                            String dropFromItemType = ((Bundle) dragEvent.getLocalState()).getString("itemType");
-                            int itemPosition = ((Bundle) dragEvent.getLocalState()).getInt("itemIndex");
+                            String dropFromItemType = ((Bundle) dragEvent.getLocalState()).getString(ITEM_TYPE_BUNDLE_KEY);
+                            int itemPosition = ((Bundle) dragEvent.getLocalState()).getInt(ITEM_INDEX_BUNDLE_KEY);
 
                             return CoinApplication.isDragAllowed(dropFromItemType, itemType, itemPosition, itemIndex);
                         case DragEvent.ACTION_DRAG_ENTERED:
@@ -128,18 +116,18 @@ public class MoneyFlowBaseAdapter extends BaseAdapter {
                             String fromItemType = dragEvent.getClipData().getItemAt(1).getText().toString();
                             int fromLayoutId = Integer.parseInt((String) dragEvent.getClipData().getItemAt(2).getText());
                             Bundle bundle = new Bundle();
-                            bundle.putInt("fromIndex", fromIndex);
-                            bundle.putInt("toIndex", itemIndex);
-                            bundle.putInt("fromLayoutId", fromLayoutId);
-                            bundle.putInt("toLayoutId", layoutId);
-                            bundle.putString("fromItemType", fromItemType);
-                            bundle.putString("toItemType", itemType);
+                            bundle.putInt(FROM_ITEM_INDEX_BUNDLE_KEY, fromIndex);
+                            bundle.putInt(TO_ITEM_INDEX_BUNDLE_KEY, itemIndex);
+                            bundle.putInt(FROM_LAYOUT_ID_BUNDLE_KEY, fromLayoutId);
+                            bundle.putInt(TO_LAYOUT_ID_BUNDLE_KEY, layoutId);
+                            bundle.putString(FROM_ITEM_TYPE_BUNDLE_KEY, fromItemType);
+                            bundle.putString(TO_ITEM_TYPE_BUNDLE_KEY, itemType);
 
                             TransactionDialogFragment transactionDialog = new TransactionDialogFragment();
                             transactionDialog.setArguments(bundle);
 
                             FragmentManager fr = ((Activity) coinContext).getFragmentManager();
-                            transactionDialog.show(fr, "dialog_transaction");
+                            transactionDialog.show(fr, DIALOG_TRANSACTION_VIEW_KEY);
 
                             return true;
                     }

@@ -23,6 +23,8 @@ public class Transaction extends BaseDaoEnabled {
     public final static String SPEND_TO_FIELD_NAME = "to_spend_id";
     public final static String GOAL_TO_FIELD_NAME = "to_goal_id";
 
+    public final static String DATE_FIELD_NAME = "date_of_transaction";
+
     @DatabaseField(generatedId = true)
     private Long id;
 
@@ -44,14 +46,17 @@ public class Transaction extends BaseDaoEnabled {
     @DatabaseField(foreign = true, columnName = GOAL_TO_FIELD_NAME)
     private Goal toGoal;
 
-
+    @DatabaseField
+    private String titleFrom;
+    @DatabaseField
+    private String titleTo;
    // @DatabaseField(canBeNull = false, foreign = true,  foreignAutoRefresh = true)
    // private MoneyFlow from;
 
    // @DatabaseField(canBeNull = false, foreign = true, foreignAutoRefresh = true)
  //   private MoneyFlow to;
 
-    @DatabaseField
+    @DatabaseField(columnName = DATE_FIELD_NAME)
     private Date transactionDate;
 
     @DatabaseField(dataType = DataType.SERIALIZABLE)
@@ -80,7 +85,8 @@ public class Transaction extends BaseDaoEnabled {
         } else if (to instanceof Goal) {
             toGoal = (Goal)to;
         }
-
+        this.titleFrom = from.getTitle();
+        this.titleTo = to.getTitle();
 //        this.from = from;
 //        this.to = to;
         this.moneyCount = sumOfTransaction;
@@ -117,5 +123,13 @@ public class Transaction extends BaseDaoEnabled {
 
     public Date getTransactionDate() {
         return transactionDate;
+    }
+
+    public String getTitleFrom() {
+        return titleFrom;
+    }
+
+    public String getTitleTo() {
+        return titleTo;
     }
 }

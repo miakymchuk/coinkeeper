@@ -35,7 +35,6 @@ public class IconViewHolder {
     void build(int mTitleView, Drawable mIcon, int mTotalAmountView) {
         this.mTitleView.setText(mTitleView);
         this.mIconView.setBackground(mIcon);
-
         this.mTotalAmountView.setText(mTotalAmountView);
     }
 

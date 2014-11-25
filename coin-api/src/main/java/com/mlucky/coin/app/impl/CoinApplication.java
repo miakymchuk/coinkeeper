@@ -235,10 +235,37 @@ public class CoinApplication extends BaseDaoEnabled {
 
     }
 
-    //TODO need apply query builder
-    public List<Transaction> loadTransaction(Dao<Transaction, Integer> transactionDao) throws SQLException{
-        //QueryBuilder<Transaction, Long> tQb = transactionDao.queryBuilder();
-        List<Transaction> transactions = transactionDao.queryForAll();
+
+    public List<Transaction> loadTransaction(Dao<Transaction, Integer> transactionDao,
+                                             Integer layoutId, Integer currentItemPosition) throws SQLException{
+        currentItemPosition++;//Because GridView item's position starts from 0, but the id's in dataBase starts from 1
+        QueryBuilder<Transaction, Integer> tQb = transactionDao.queryBuilder();
+
+        switch (layoutId) {
+            case 1:
+                tQb.where().eq(Transaction.INCOME_FROM_FIELD_NAME, currentItemPosition)
+                           .or()
+                           .eq(Transaction.INCOME_TO_FIELD_NAME, currentItemPosition);
+            break;
+            case 2:
+                tQb.where().eq(Transaction.ACCOUNT_FROM_FIELD_NAME, currentItemPosition)
+                           .or()
+                           .eq(Transaction.ACCOUNT_TO_FIELD_NAME, currentItemPosition);
+            break;
+            case 3:
+                tQb.where().eq(Transaction.SPEND_FROM_FIELD_NAME, currentItemPosition)
+                           .or()
+                           .eq(Transaction.SPEND_TO_FIELD_NAME, currentItemPosition);
+            break;
+            case 4:
+                tQb.where().eq(Transaction.GOAL_FROM_FIELD_NAME, currentItemPosition)
+                           .or()
+                           .eq(Transaction.GOAL_TO_FIELD_NAME, currentItemPosition);
+            break;
+        }
+        tQb.orderBy(Transaction.DATE_FIELD_NAME, false);//false mean that the last transaction on top of the list
+
+        List<Transaction> transactions = transactionDao.query(tQb.prepare());
         return transactions;
     }
 
