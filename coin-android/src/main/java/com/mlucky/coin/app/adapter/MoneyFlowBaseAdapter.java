@@ -11,7 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
 import com.mlucky.coin.app.gui.R;
-import com.mlucky.coin.app.gui.TransactionDialogFragment;
+import com.mlucky.coin.app.gui.dialog.TransactionDialogFragment;
 import com.mlucky.coin.app.impl.*;
 
 import java.util.List;
@@ -35,7 +35,7 @@ public class MoneyFlowBaseAdapter extends BaseAdapter {
     private List<? extends MoneyFlow> moneyFlowList;
     private LayoutInflater inflater;
     private int layoutId;
-
+    private boolean isEditMode = false;
     private MoneyFlow moneyFlowItem = null;
     private CoinApplication coinApplication = null;
 
@@ -75,7 +75,7 @@ public class MoneyFlowBaseAdapter extends BaseAdapter {
         }
 
         if (position ==  moneyFlowList.size()) {
-            Drawable mIconButton = coinContext.getResources().getDrawable(R.drawable.ic_button_add);
+            Drawable mIconButton = coinContext.getResources().getDrawable(R.drawable.ic_btn_add);
 
             int parentId = viewGroup.getId();
             Integer stringTitleAddButtonId = choosingStringOfAddButton(parentId);
@@ -83,19 +83,17 @@ public class MoneyFlowBaseAdapter extends BaseAdapter {
 
         } else {
             moneyFlowItem = moneyFlowList.get(position);
-            Drawable mIconItem = coinContext.getResources().getDrawable(R.drawable.ic_launcher);
-            mHolder.build(moneyFlowItem.getTitle().toString(), mIconItem, moneyFlowItem.getTotal().toString());
-            setonDragItemListeners(mHolder.getmIconView());
+            Drawable mIconItem = coinContext.getResources().getDrawable(R.drawable.ic_dollar);
+            mHolder.build(moneyFlowItem.getTitle().toString(), mIconItem, moneyFlowItem.getTotal().toString(), isEditMode);
+            setOnDragItemListeners(mHolder.getmIconView());
         }
 
         return view;
     }
 
-    private void setonDragItemListeners(final ImageView mIconView) {
+    private void setOnDragItemListeners(final ImageView mIconView) {
         final String itemType = moneyFlowItem.getClass().getSimpleName();
         final int itemIndex = coinApplication.getMoneyFlowList(itemType).indexOf(moneyFlowItem);
-//        final String INCOME_VIEW_TAG = "income_index";
-//        mIconView.setTag(INCOME_VIEW_TAG);
 
         if (layoutId != R.id.income_linear_layout) {
             mIconView.setOnDragListener(new View.OnDragListener() {
@@ -156,6 +154,12 @@ public class MoneyFlowBaseAdapter extends BaseAdapter {
         return stringTitleAddButtonId;
     }
 
+    public boolean isEditMode() {
+        return isEditMode;
+    }
 
+    public void setEditMode(boolean isEditMode) {
+        this.isEditMode = isEditMode;
+    }
 }
 

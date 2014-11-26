@@ -1,4 +1,4 @@
-package com.mlucky.coin.app.gui;
+package com.mlucky.coin.app.gui.dialog;
 
 
 import android.app.Activity;
@@ -10,12 +10,15 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
 import com.jess.ui.TwoWayAbsListView;
 import com.mlucky.coin.app.db.DatabaseHelper;
+import com.mlucky.coin.app.gui.ApplicationActivity;
+import com.mlucky.coin.app.gui.R;
 import com.mlucky.coin.app.impl.*;
 
 import java.sql.SQLException;
@@ -36,11 +39,13 @@ public class TransactionDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         final ApplicationActivity mActivity = (ApplicationActivity)getActivity();
-        AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
-        LayoutInflater inflater = mActivity.getLayoutInflater();
+        final DatabaseHelper databaseHelper = DatabaseHelper.getDataBaseHelper(mActivity.getApplicationContext());
 
+        LayoutInflater inflater = mActivity.getLayoutInflater();
         LinearLayout dialogTransactionLayout = (LinearLayout)inflater.inflate(R.layout.dialog_transaction, null);
         final EditText transactionText = (EditText)dialogTransactionLayout.findViewById(R.id.transaction_amount);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
         builder.setTitle(R.string.dialog_title_transaction).setView(dialogTransactionLayout);
 
         builder.setPositiveButton(R.string.set_title, new DialogInterface.OnClickListener() {
@@ -49,7 +54,7 @@ public class TransactionDialogFragment extends DialogFragment {
                 Dao<CoinApplication, Integer> coinDao;
                 CoinApplication coinApplication = null;
                 try {
-                    coinDao = mActivity.getHelper().getCoinApplicationDao();
+                    coinDao =databaseHelper.getCoinApplicationDao();
                     coinApplication = CoinApplication.getCoinApplication(coinDao);
                 } catch (SQLException e) {
                     e.printStackTrace();
@@ -64,11 +69,11 @@ public class TransactionDialogFragment extends DialogFragment {
                 MoneyFlow to = coinApplication.getMoneyFlowList(toItemType).get(toIndex);
                 String itemTitle = transactionText.getText().toString();
                 try {
-                    Dao<InCome, Integer> inComeDao  = mActivity.getHelper().getInComeDao();
-                    Dao<Account, Integer> accountDao  = mActivity.getHelper().getAccountDao();
-                    Dao<Spend, Integer> spendDao  = mActivity.getHelper().getSpendDao();
-                    Dao<Goal, Integer> goalDao  = mActivity.getHelper().getGoalDao();
-                    Dao<Transaction, Integer> transactionDao  = mActivity.getHelper().getTransactionDao();
+                    Dao<InCome, Integer> inComeDao  = databaseHelper.getInComeDao();
+                    Dao<Account, Integer> accountDao  = databaseHelper.getAccountDao();
+                    Dao<Spend, Integer> spendDao  = databaseHelper.getSpendDao();
+                    Dao<Goal, Integer> goalDao  = databaseHelper.getGoalDao();
+                    Dao<Transaction, Integer> transactionDao  = databaseHelper.getTransactionDao();
                     CoinApplication.startTransaction(from, to , fromItemType, toItemType, itemTitle,
                             transactionDao, inComeDao, accountDao, spendDao, goalDao);
                 } catch (SQLException e) {
@@ -94,7 +99,7 @@ public class TransactionDialogFragment extends DialogFragment {
 
     private void setTotal(MoneyFlow moneyFlow,int fromLayoutId, int fromIndex ) {
         TwoWayAbsListView fromLinearLayout = (TwoWayAbsListView)getActivity().findViewById(fromLayoutId);
-        LinearLayout  fromLinearLayoutItem = (LinearLayout)fromLinearLayout.getChildAt(fromIndex);
+        FrameLayout  fromLinearLayoutItem = (FrameLayout)fromLinearLayout.getChildAt(fromIndex);
 
         TextView fromTextView = (TextView)fromLinearLayoutItem.findViewById(R.id.item_total);
         fromTextView.setText(moneyFlow.getTotal().toString());

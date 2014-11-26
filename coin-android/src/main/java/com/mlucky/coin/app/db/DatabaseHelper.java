@@ -29,9 +29,14 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private Dao<Goal, Integer> goalDao = null;
     private Dao<Transaction, Integer> transactionDao = null;
     private Dao<CoinApplication, Integer> coinApplicationDao = null;
+    private static DatabaseHelper databaseHelper = null;
 
-    public DatabaseHelper(Context context) {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    private DatabaseHelper(Context context) {
+            super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    }
+
+    public static synchronized DatabaseHelper getDataBaseHelper(Context context) {
+        return databaseHelper == null ? databaseHelper = new DatabaseHelper(context) : databaseHelper;
     }
 
     /**

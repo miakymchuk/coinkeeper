@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+    <Button android:id="@+id/btn_remove_item"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/remove_item"/>
+    <Button android:id="@+id/btn_remove_item_and_transaction"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/remove_item_and_transaction"/>
+    <Button android:id="@+id/btn_remove_cancel"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/cancel"/>
+
+</LinearLayout>

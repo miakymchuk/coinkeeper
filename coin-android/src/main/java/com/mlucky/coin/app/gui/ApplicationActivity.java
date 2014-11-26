@@ -5,13 +5,14 @@ import android.content.ClipData;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.*;
-import android.widget.ImageView;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
 import com.jess.ui.TwoWayAdapterView;
 import com.jess.ui.TwoWayGridView;
 import com.mlucky.coin.app.adapter.MoneyFlowBaseAdapter;
 import com.mlucky.coin.app.db.DatabaseHelper;
+import com.mlucky.coin.app.gui.dialog.AddItemDialogFragment;
+import com.mlucky.coin.app.gui.dialog.RemoveItemDialogFragment;
 import com.mlucky.coin.app.impl.*;
 
 import java.sql.SQLException;
@@ -25,11 +26,13 @@ public class ApplicationActivity extends Activity {
     private final String ITEM_TYPE_BUNDLE_KEY = "itemType";
     private final String ITEM_INDEX_BUNDLE_KEY = "itemIndex";
 
+    private final String IS_REMOVE_TRANSACTION_BUNDLE_KEY = "isRemoveTransaction";
+
     private final String LOG_TAG = getClass().getSimpleName();
 
     private CoinApplication coinApplication = null;
 
-    private DatabaseHelper databaseHelper = null;
+    private static DatabaseHelper databaseHelper;
     private MoneyFlowBaseAdapter mIncomeAdapter;
     private MoneyFlowBaseAdapter mAccountAdapter;
     private MoneyFlowBaseAdapter mSpendAdapter;
@@ -38,16 +41,16 @@ public class ApplicationActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        databaseHelper = DatabaseHelper.getDataBaseHelper(getApplicationContext());
         setContentView(R.layout.activity_application);
 
         try {
-            Dao<CoinApplication, Integer> coinDao = getHelper().getCoinApplicationDao();
+            Dao<CoinApplication, Integer> coinDao = databaseHelper.getCoinApplicationDao();
             coinApplication = CoinApplication.getCoinApplication(coinDao);
-            Dao<InCome, Integer> incomeDao =  getHelper().getInComeDao();
-            Dao<Account, Integer> accountDao =  getHelper().getAccountDao();
-            Dao<Spend, Integer> spendDao =  getHelper().getSpendDao();
-            Dao<Goal, Integer> goalDao =  getHelper().getGoalDao();
+            Dao<InCome, Integer> incomeDao =  databaseHelper.getInComeDao();
+            Dao<Account, Integer> accountDao =  databaseHelper.getAccountDao();
+            Dao<Spend, Integer> spendDao =  databaseHelper.getSpendDao();
+            Dao<Goal, Integer> goalDao =  databaseHelper.getGoalDao();
             coinApplication.loadEntityFromDatabase(incomeDao, accountDao, spendDao, goalDao);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -56,6 +59,15 @@ public class ApplicationActivity extends Activity {
         mAccountAdapter = setMoneyFlowBaseAdapter(coinApplication.getAccounts(), R.id.account_linear_layout);
         mSpendAdapter = setMoneyFlowBaseAdapter(coinApplication.getSpends(), R.id.spend_linear_layout);
         mGoalAdapter = setMoneyFlowBaseAdapter(coinApplication.getGoals(), R.id.goal_linear_layout);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(!this.mIncomeAdapter.isEditMode()) {
+            super.onBackPressed();
+        }else {
+            setEditMode(false);
+        }
     }
 
     @Override
@@ -71,8 +83,13 @@ public class ApplicationActivity extends Activity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if (id == R.id.action_settings) {
+        switch (id) {
+            case R.id.action_settings:
             return true;
+            case R.id.action_edit_mode:
+                setEditMode(true);
+            return true;
+
         }
         return super.onOptionsItemSelected(item);
     }
@@ -92,8 +109,22 @@ public class ApplicationActivity extends Activity {
         mInComeGridView.setAdapter(mMoneyFlowAdaper);
         mInComeGridView.setOnItemClickListener(new TwoWayAdapterView.OnItemClickListener() {
             public void onItemClick(TwoWayAdapterView parent, View v, int position, long id) {
-                //Set action on the add buttons
                 Integer countOfLayoutItems = choosingCountOfItems(layoutId);
+
+                if(mIncomeAdapter.isEditMode()){
+                    if (position == countOfLayoutItems) return;
+
+                    DialogFragment removeDialog = new RemoveItemDialogFragment();
+                    Bundle bundle = new Bundle();
+                    bundle.putInt(LAYOUT_ID_BUNDLE_KEY, layoutId);
+                    bundle.putInt(ITEM_POSITION_BUNDLE_KEY, position);
+                    removeDialog.setArguments(bundle);
+                    removeDialog.show(getFragmentManager(), null);
+
+                    return;
+                }
+
+                //Set action on the add buttons
                 if (position == countOfLayoutItems) {
                     showAddButtonDialog(layoutId);
                 } else {
@@ -138,13 +169,6 @@ public class ApplicationActivity extends Activity {
         return mMoneyFlowAdaper;
     }
 
-    public DatabaseHelper getHelper() {
-        if (databaseHelper == null) {
-            databaseHelper = new DatabaseHelper(getApplicationContext());
-        }
-        return databaseHelper;
-    }
-
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -187,5 +211,81 @@ public class ApplicationActivity extends Activity {
                 break;
         }
         return countOfLayoutItems;
+    }
+
+    private void setEditMode(boolean isEditMode) {
+        this.mIncomeAdapter.setEditMode(isEditMode);
+        this.mAccountAdapter.setEditMode(isEditMode);
+        this.mSpendAdapter.setEditMode(isEditMode);
+        this.mGoalAdapter.setEditMode(isEditMode);
+
+        this.mIncomeAdapter.notifyDataSetChanged();
+        this.mAccountAdapter.notifyDataSetChanged();
+        this.mSpendAdapter.notifyDataSetChanged();
+        this.mGoalAdapter.notifyDataSetChanged();
+    }
+    public void addItem(String titleItem, int layoutID) {
+        this.addOrRemoveItem(titleItem, layoutID, false, false, 0);
+    }
+
+    public void removeItem(int layoutID, int positionItem, boolean isRemoveTransaction) {
+        this.addOrRemoveItem(null, layoutID, true, isRemoveTransaction, positionItem);
+    }
+
+    private void addOrRemoveItem(String titleItem, int layoutID,  boolean isRemove,
+                                        boolean isRemoveTransaction, int positionItem) {
+        try {
+            MoneyFlowBaseAdapter mCommonAdaper = null;
+            Dao<CoinApplication, Integer> coinDao = databaseHelper.getCoinApplicationDao();
+            Dao<Transaction, Integer> transactionDao = databaseHelper.getTransactionDao();
+            CoinApplication coinApplication = CoinApplication.getCoinApplication(coinDao);
+            TwoWayGridView currentGridView = null;
+            switch (layoutID) {
+                case R.id.income_linear_layout:
+                    Dao<InCome, Integer> incomeDao =  databaseHelper.getInComeDao();
+                    if (isRemove) {
+                        coinApplication.removeInCome(positionItem, incomeDao, isRemoveTransaction, transactionDao);
+                    } else {
+                        coinApplication.addIncome(titleItem, incomeDao);
+                    }
+                    mCommonAdaper = this.getmIncomeAdapter();
+                    currentGridView = (TwoWayGridView)this.findViewById(R.id.income_linear_layout);
+                    break;
+                case R.id.account_linear_layout:
+                    Dao<Account, Integer> accountDao =  databaseHelper.getAccountDao();
+                    if (isRemove) {
+                        coinApplication.removeAccount(positionItem, accountDao, isRemoveTransaction, transactionDao);
+                    } else {
+                        coinApplication.addAccount(titleItem, accountDao);
+                    }
+                    mCommonAdaper = this.getmAccountAdapter();
+                    currentGridView = (TwoWayGridView)this.findViewById(R.id.account_linear_layout);
+                    break;
+                case R.id.spend_linear_layout:
+                    Dao<Spend, Integer> spendDao =  databaseHelper.getSpendDao();
+                    if (isRemove) {
+                        coinApplication.removeSpend(positionItem, spendDao, isRemoveTransaction, transactionDao);
+                    } else {
+                        coinApplication.addSpend(titleItem, spendDao);
+                    }
+                    mCommonAdaper = this.getmSpendAdapter();
+                    currentGridView = (TwoWayGridView)this.findViewById(R.id.spend_linear_layout);
+                    break;
+                case R.id.goal_linear_layout:
+                    Dao<Goal, Integer> goalDao = databaseHelper.getGoalDao();
+                    if (isRemove) {
+                        coinApplication.removeGoal(positionItem, goalDao, isRemoveTransaction, transactionDao);
+                    } else {
+                        coinApplication.addGoal(titleItem, goalDao);
+                    }
+                    mCommonAdaper = this.getmGoalAdapter();
+                    currentGridView = (TwoWayGridView)this.findViewById(R.id.goal_linear_layout);
+                    break;
+            }
+            mCommonAdaper.notifyDataSetChanged();
+            currentGridView.setAdapter(mCommonAdaper);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

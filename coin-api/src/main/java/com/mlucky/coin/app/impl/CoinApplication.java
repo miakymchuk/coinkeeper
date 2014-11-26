@@ -26,6 +26,13 @@ import java.util.List;
 
 @DatabaseTable(tableName = "CoinApplicationTable")
 public class CoinApplication extends BaseDaoEnabled {
+
+   // public enum ItemType { INCOME, ACCOUNT, SPEND, GOAL}
+    private final int INCOME = 1;
+    private final int ACCOUNT = 2;
+    private final int SPEND = 3;
+    private final int GOAL = 4;
+
     @DatabaseField(id = true)
     private int id = 1;
     private static CoinApplication coinApplication = null;
@@ -129,6 +136,94 @@ public class CoinApplication extends BaseDaoEnabled {
         return goal;
     }
 
+
+    public void removeInCome(int itemPosition, Dao<InCome , Integer> inComeDao, boolean isRemoveTransaction,
+                             Dao<Transaction, Integer> transactionDao) throws  SQLException{
+        if (isRemoveTransaction) {
+            removeTransaction(transactionDao, INCOME, itemPosition);
+        }
+        InCome inCome = this.inComeSources.get(itemPosition);
+        inComeDao.deleteById(inCome.getId());
+        this.inComeSources.remove(itemPosition);
+
+    }
+
+    public void removeAccount(int itemPosition, Dao<Account , Integer> accountDao, boolean isRemoveTransaction,
+                              Dao<Transaction, Integer> transactionDao) throws  SQLException {
+        if (isRemoveTransaction) {
+            removeTransaction(transactionDao, ACCOUNT, itemPosition);
+        }
+        Account account = this.accounts.get(itemPosition);
+        accountDao.deleteById(account.getId());
+        this.accounts.remove(itemPosition);
+    }
+
+    public void removeSpend(int itemPosition, Dao<Spend , Integer> spendDao, boolean isRemoveTransaction,
+                            Dao<Transaction, Integer> transactionDao) throws  SQLException {
+        if (isRemoveTransaction) {
+            removeTransaction(transactionDao, SPEND, itemPosition);
+        }
+        Spend spend = this.spends.get(itemPosition);
+        spendDao.deleteById(spend.getId());
+        this.spends.remove(itemPosition);
+    }
+
+    public void removeGoal( int itemPosition, Dao<Goal , Integer> goalDao, boolean isRemoveTransaction,
+                            Dao<Transaction, Integer> transactionDao) throws  SQLException {
+        if (isRemoveTransaction) {
+            removeTransaction(transactionDao, GOAL, itemPosition);
+        }
+        Goal item = this.goals.get(itemPosition);
+        goalDao.deleteById(item.getId());
+        this.goals.remove(itemPosition);
+    }
+
+    //TODO need implement right removing by changing totalAmount of each item to which this transactions was related
+    private void removeTransaction(Dao<Transaction, Integer> transactionDao, final int itemType, int itemPosition) throws SQLException {
+            List<Transaction>  transactions = loadTransaction(transactionDao, itemType, itemPosition );
+            switch (itemType) {
+                case INCOME:
+                    for (Transaction transaction: transactions) {
+                        MoneyFlow to;
+                        MoneyFlow from;
+                        if (transaction.getFromInCome() == null) {
+                            to = transaction.getToInCome();
+
+                            from = transaction.getFromInCome();
+                            if (from == null)
+                                from = transaction.getFromAccount();
+                            else if (from == null)
+                                from = transaction.getFromSpend();
+                            else if (from == null)
+                                from = transaction.getFromGoal();
+                        } else {
+                            from = transaction.getFromInCome();
+
+                            to = transaction.getToInCome();
+                            if (to == null)
+                                to = transaction.getToAccount();
+                            else if (to == null)
+                                to = transaction.getToSpend();
+                            else if (to == null)
+                                to = transaction.getToGoal();
+                        }
+
+                        //TODO here we have only ID of From and To item
+                        Money money = transaction.getMoneyCount();
+
+                        Money previousAmount = from.getTotal().minus(money);
+                        from.setTotal(previousAmount);
+                        previousAmount = to.getTotal().minus(money);
+                        to.setTotal(previousAmount);
+
+                    }
+                    break;
+            }
+            for (Transaction transaction: transactions) {
+                transactionDao.deleteById(transaction.getId());
+            }
+    }
+
     private void addInComeAccountTransaction(InCome from, Account to, String sMoney, Dao<Transaction, Integer> transactionDao,
                                              Dao<InCome, Integer> inComeDao,  Dao<Account, Integer> accountDao) {
         from.addTransaction(to, sMoney, true, transactionDao, inComeDao, accountDao);
@@ -162,27 +257,6 @@ public class CoinApplication extends BaseDaoEnabled {
     private void addGoalGoalTransaction(Goal from, Goal to, String sMoney, Dao<Transaction, Integer> transactionDao,
                                         Dao<Goal, Integer> fromGoalDao,  Dao<Goal, Integer> toGoalDao) {
         from.addTransaction(to, sMoney, false, transactionDao, fromGoalDao, toGoalDao);
-    }
-
-    public void removeInCome(InCome inCome) {
-
-    }
-
-    public void removeAccount(Account account) {
-
-
-    }
-
-    public void removeSpend(Spend spend) {
-
-    }
-
-    public void removeGoal(Goal goal) {
-
-    }
-
-    public void removeTransaction(Transaction transaction) {
-
     }
 
     public List<InCome> getInComeSources() {
@@ -238,29 +312,32 @@ public class CoinApplication extends BaseDaoEnabled {
 
     public List<Transaction> loadTransaction(Dao<Transaction, Integer> transactionDao,
                                              Integer layoutId, Integer currentItemPosition) throws SQLException{
-        currentItemPosition++;//Because GridView item's position starts from 0, but the id's in dataBase starts from 1
         QueryBuilder<Transaction, Integer> tQb = transactionDao.queryBuilder();
-
+        Integer itemId;
         switch (layoutId) {
-            case 1:
-                tQb.where().eq(Transaction.INCOME_FROM_FIELD_NAME, currentItemPosition)
+            case INCOME:
+                itemId = this.inComeSources.get(currentItemPosition).getId();
+                tQb.where().eq(Transaction.INCOME_FROM_FIELD_NAME, itemId)
                            .or()
-                           .eq(Transaction.INCOME_TO_FIELD_NAME, currentItemPosition);
+                           .eq(Transaction.INCOME_TO_FIELD_NAME, itemId);
             break;
-            case 2:
-                tQb.where().eq(Transaction.ACCOUNT_FROM_FIELD_NAME, currentItemPosition)
+            case ACCOUNT:
+                itemId = this.accounts.get(currentItemPosition).getId();
+                tQb.where().eq(Transaction.ACCOUNT_FROM_FIELD_NAME, itemId)
                            .or()
-                           .eq(Transaction.ACCOUNT_TO_FIELD_NAME, currentItemPosition);
+                           .eq(Transaction.ACCOUNT_TO_FIELD_NAME, itemId);
             break;
-            case 3:
-                tQb.where().eq(Transaction.SPEND_FROM_FIELD_NAME, currentItemPosition)
+            case SPEND:
+                itemId = this.spends.get(currentItemPosition).getId();
+                tQb.where().eq(Transaction.SPEND_FROM_FIELD_NAME, itemId)
                            .or()
-                           .eq(Transaction.SPEND_TO_FIELD_NAME, currentItemPosition);
+                           .eq(Transaction.SPEND_TO_FIELD_NAME, itemId);
             break;
-            case 4:
-                tQb.where().eq(Transaction.GOAL_FROM_FIELD_NAME, currentItemPosition)
+            case GOAL:
+                itemId = this.goals.get(currentItemPosition).getId();
+                tQb.where().eq(Transaction.GOAL_FROM_FIELD_NAME, itemId)
                            .or()
-                           .eq(Transaction.GOAL_TO_FIELD_NAME, currentItemPosition);
+                           .eq(Transaction.GOAL_TO_FIELD_NAME, itemId);
             break;
         }
         tQb.orderBy(Transaction.DATE_FIELD_NAME, false);//false mean that the last transaction on top of the list

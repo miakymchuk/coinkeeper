@@ -36,7 +36,7 @@ public abstract class MoneyFlow extends BaseDaoEnabled {
     private Money total;
 
     //@ForeignCollectionField(eager = true)
-    private Collection<Transaction> transactions =  new ArrayList<Transaction>();
+    //private Collection<Transaction> transactions =  new ArrayList<Transaction>();
 
     public void addTransaction(MoneyFlow to, String money, boolean isIncreasing,
                                Dao<Transaction, Integer> transactionDao,
@@ -53,8 +53,8 @@ public abstract class MoneyFlow extends BaseDaoEnabled {
         }  catch (SQLException e) {
             e.printStackTrace();
         }
-        this.transactions.add(newTransaction);
-        to.transactions.add(newTransaction);
+//        this.transactions.add(newTransaction);
+//        to.transactions.add(newTransaction);
         Money inComeMoney = Money.parse(getCurrency() + " " + money);
         if (isIncreasing) {
             this.increaseTotal(inComeMoney);
@@ -122,6 +122,10 @@ public abstract class MoneyFlow extends BaseDaoEnabled {
 //            from.transactions.remove(indexFrom);
 //            to.transactions.remove(indexTo);
 //        }
+    }
+
+    public void setTotal(Money total) {
+        this.total = total;
     }
 
     public void increaseTotal(Money amount) {

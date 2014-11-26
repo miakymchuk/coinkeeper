@@ -26,7 +26,7 @@ public class Transaction extends BaseDaoEnabled {
     public final static String DATE_FIELD_NAME = "date_of_transaction";
 
     @DatabaseField(generatedId = true)
-    private Long id;
+    private Integer id;
 
     @DatabaseField(foreign = true, columnName = INCOME_FROM_FIELD_NAME)
     private InCome fromInCome;
@@ -117,7 +117,7 @@ public class Transaction extends BaseDaoEnabled {
     public Transaction() {
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
@@ -131,5 +131,37 @@ public class Transaction extends BaseDaoEnabled {
 
     public String getTitleTo() {
         return titleTo;
+    }
+
+    public InCome getFromInCome() {
+        return fromInCome;
+    }
+
+    public Account getFromAccount() {
+        return fromAccount;
+    }
+
+    public Spend getFromSpend() {
+        return fromSpend;
+    }
+
+    public Goal getFromGoal() {
+        return fromGoal;
+    }
+
+    public InCome getToInCome() {
+        return toInCome;
+    }
+
+    public Account getToAccount() {
+        return toAccount;
+    }
+
+    public Spend getToSpend() {
+        return toSpend;
+    }
+
+    public Goal getToGoal() {
+        return toGoal;
     }
 }

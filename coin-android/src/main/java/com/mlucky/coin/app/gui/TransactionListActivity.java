@@ -3,7 +3,6 @@ package com.mlucky.coin.app.gui;
 import android.app.Activity;
 import android.os.Bundle;
 import android.widget.ListView;
-import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
 import com.mlucky.coin.app.adapter.TransactionListAdapter;
 import com.mlucky.coin.app.db.DatabaseHelper;
@@ -17,14 +16,14 @@ import java.util.List;
  * Created by m.iakymchuk on 24.11.2014.
  */
 public class TransactionListActivity extends Activity {
-    private DatabaseHelper databaseHelper = null;
+    private DatabaseHelper databaseHelper;
     private final String LAYOUT_ID_BUNDLE_KEY = "layoutId";
     private final String ITEM_POSITION_BUNDLE_KEY = "clickedCurrentItemPosition";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        databaseHelper = DatabaseHelper.getDataBaseHelper(getApplicationContext());
         Integer clickedCurrentLayoutId = null;
         Integer clickedCurrentItemPosition = null;
         Integer layoutIndex = null;
@@ -32,15 +31,15 @@ public class TransactionListActivity extends Activity {
             Bundle extras = getIntent().getExtras();
             clickedCurrentLayoutId = extras.getInt(LAYOUT_ID_BUNDLE_KEY);
             clickedCurrentItemPosition = extras.getInt(ITEM_POSITION_BUNDLE_KEY);
-            layoutIndex = getlayoutIndex(clickedCurrentLayoutId);
+            layoutIndex = getLayoutIndex(clickedCurrentLayoutId);
         }
 
         CoinApplication coinApplication;
         List transactions = null;
         try {
-            Dao<CoinApplication, Integer> coinDao = getHelper().getCoinApplicationDao();
+            Dao<CoinApplication, Integer> coinDao = databaseHelper.getCoinApplicationDao();
             coinApplication = CoinApplication.getCoinApplication(coinDao);
-            Dao<Transaction, Integer> transactionDao = getHelper().getTransactionDao();
+            Dao<Transaction, Integer> transactionDao = databaseHelper.getTransactionDao();
             transactions = coinApplication.loadTransaction(transactionDao, layoutIndex, clickedCurrentItemPosition);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -54,23 +53,7 @@ public class TransactionListActivity extends Activity {
         transactionList.setAdapter(transactionAdapter);
     }
 
-    public DatabaseHelper getHelper() {
-        if (databaseHelper == null) {
-            databaseHelper = new DatabaseHelper(getApplicationContext());
-        }
-        return databaseHelper;
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (databaseHelper != null) {
-            OpenHelperManager.releaseHelper();
-            databaseHelper = null;
-        }
-    }
-
-    private int getlayoutIndex(int clickedCurrentLayoutId) {
+    private int getLayoutIndex(int clickedCurrentLayoutId) {
         switch (clickedCurrentLayoutId) {
             case R.id.income_linear_layout:
                 return 1;
