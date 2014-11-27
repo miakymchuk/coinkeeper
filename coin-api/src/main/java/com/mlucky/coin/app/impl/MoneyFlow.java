@@ -124,10 +124,6 @@ public abstract class MoneyFlow extends BaseDaoEnabled {
 //        }
     }
 
-    public void setTotal(Money total) {
-        this.total = total;
-    }
-
     public void increaseTotal(Money amount) {
         this.total = total.plus(amount);
     }

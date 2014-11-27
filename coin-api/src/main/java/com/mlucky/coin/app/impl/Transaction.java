@@ -13,38 +13,28 @@ import java.util.Date;
  */
 @DatabaseTable(tableName = "TransactionTable")
 public class Transaction extends BaseDaoEnabled {
-    public final static String INCOME_FROM_FIELD_NAME = "from_income_id";
-    public final static String ACCOUNT_FROM_FIELD_NAME = "from_account_id";
-    public final static String SPEND_FROM_FIELD_NAME = "from_spend_id";
-    public final static String GOAL_FROM_FIELD_NAME = "from_goal_id";
+    public final static String FROM_ID_FIELD_NAME = "from_id";
+    public final static String TO_ID_FIELD_NAME = "to_id";
 
-    public final static String INCOME_TO_FIELD_NAME = "to_income_id";
-    public final static String ACCOUNT_TO_FIELD_NAME = "to_account_id";
-    public final static String SPEND_TO_FIELD_NAME = "to_spend_id";
-    public final static String GOAL_TO_FIELD_NAME = "to_goal_id";
+    public final static String FROM_TYPE_FIELD_NAME = "from_type";
+    public final static String TO_TYPE_FIELD_NAME = "to_type";
 
     public final static String DATE_FIELD_NAME = "date_of_transaction";
 
     @DatabaseField(generatedId = true)
     private Integer id;
 
-    @DatabaseField(foreign = true, columnName = INCOME_FROM_FIELD_NAME)
-    private InCome fromInCome;
-    @DatabaseField(foreign = true, columnName = ACCOUNT_FROM_FIELD_NAME)
-    private Account fromAccount;
-    @DatabaseField(foreign = true,columnName = SPEND_FROM_FIELD_NAME)
-    private Spend fromSpend;
-    @DatabaseField(foreign = true, columnName = GOAL_FROM_FIELD_NAME)
-    private Goal fromGoal;
+    @DatabaseField(columnName = FROM_ID_FIELD_NAME)
+    Integer fromId;
 
-    @DatabaseField(foreign = true, columnName = INCOME_TO_FIELD_NAME)
-    private InCome toInCome;
-    @DatabaseField(foreign = true, columnName = ACCOUNT_TO_FIELD_NAME)
-    private Account toAccount;
-    @DatabaseField(foreign = true,columnName = SPEND_TO_FIELD_NAME)
-    private Spend toSpend;
-    @DatabaseField(foreign = true, columnName = GOAL_TO_FIELD_NAME)
-    private Goal toGoal;
+    @DatabaseField(columnName = TO_ID_FIELD_NAME)
+    Integer toId;
+
+    @DatabaseField(columnName = FROM_TYPE_FIELD_NAME, dataType = DataType.ENUM_INTEGER)
+    CoinApplication.ItemType fromType;
+
+    @DatabaseField( columnName = TO_TYPE_FIELD_NAME, dataType = DataType.ENUM_INTEGER)
+    CoinApplication.ItemType toType;
 
     @DatabaseField
     private String titleFrom;
@@ -67,28 +57,29 @@ public class Transaction extends BaseDaoEnabled {
 
     public Transaction(MoneyFlow from, MoneyFlow to, Money sumOfTransaction, boolean isIncreasing) {
         if (from instanceof InCome) {
-            fromInCome = (InCome)from;
+            fromType = CoinApplication.ItemType.InCome;
         } else if( from instanceof Account) {
-            fromAccount = (Account)from;
+            fromType = CoinApplication.ItemType.Account;
         } else if( from instanceof Spend) {
-            fromSpend = (Spend)from;
+            fromType = CoinApplication.ItemType.Spend;
         } else if( from instanceof Goal) {
-            fromGoal = (Goal)from;
+            fromType = CoinApplication.ItemType.Goal;
         }
 
         if (to instanceof InCome) {
-            toInCome = (InCome)to;
+            toType = CoinApplication.ItemType.InCome;
         } else if (to instanceof Account) {
-            toAccount = (Account)to;
+            toType = CoinApplication.ItemType.Account;
         } else if (to instanceof Spend) {
-            toSpend = (Spend)to;
+            toType = CoinApplication.ItemType.Spend;
         } else if (to instanceof Goal) {
-            toGoal = (Goal)to;
+            toType = CoinApplication.ItemType.Goal;
         }
+        fromId = from.getId();
+        toId = to.getId();
         this.titleFrom = from.getTitle();
         this.titleTo = to.getTitle();
-//        this.from = from;
-//        this.to = to;
+
         this.moneyCount = sumOfTransaction;
         this.transactionDate = new Date();
         this.isIncreasing = isIncreasing;
@@ -101,14 +92,6 @@ public class Transaction extends BaseDaoEnabled {
     public void setMoneyCount(Money moneyCount) {
         this.moneyCount = moneyCount;
     }
-
-//    public MoneyFlow getFrom() {
-//        return from;
-//    }
-//
-//    public MoneyFlow getTo() {
-//        return to;
-//    }
 
     public boolean isIncreasing() {
         return isIncreasing;
@@ -133,35 +116,19 @@ public class Transaction extends BaseDaoEnabled {
         return titleTo;
     }
 
-    public InCome getFromInCome() {
-        return fromInCome;
+    public Integer getFromId() {
+        return fromId;
     }
 
-    public Account getFromAccount() {
-        return fromAccount;
+    public Integer getToId() {
+        return toId;
     }
 
-    public Spend getFromSpend() {
-        return fromSpend;
+    public CoinApplication.ItemType getFromType() {
+        return fromType;
     }
 
-    public Goal getFromGoal() {
-        return fromGoal;
-    }
-
-    public InCome getToInCome() {
-        return toInCome;
-    }
-
-    public Account getToAccount() {
-        return toAccount;
-    }
-
-    public Spend getToSpend() {
-        return toSpend;
-    }
-
-    public Goal getToGoal() {
-        return toGoal;
+    public CoinApplication.ItemType getToType() {
+        return toType;
     }
 }

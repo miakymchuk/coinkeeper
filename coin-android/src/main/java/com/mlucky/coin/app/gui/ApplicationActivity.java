@@ -16,6 +16,7 @@ import com.mlucky.coin.app.gui.dialog.RemoveItemDialogFragment;
 import com.mlucky.coin.app.impl.*;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ApplicationActivity extends Activity {
@@ -237,51 +238,46 @@ public class ApplicationActivity extends Activity {
         try {
             MoneyFlowBaseAdapter mCommonAdaper = null;
             Dao<CoinApplication, Integer> coinDao = databaseHelper.getCoinApplicationDao();
-            Dao<Transaction, Integer> transactionDao = databaseHelper.getTransactionDao();
             CoinApplication coinApplication = CoinApplication.getCoinApplication(coinDao);
+
+
+            Dao<InCome, Integer> incomeDao =  databaseHelper.getInComeDao();
+            Dao<Account, Integer> accountDao =  databaseHelper.getAccountDao();
+            Dao<Spend, Integer> spendDao =  databaseHelper.getSpendDao();
+            Dao<Goal, Integer> goalDao = databaseHelper.getGoalDao();
+            Dao<Transaction, Integer> transactionDao = databaseHelper.getTransactionDao();
+
             TwoWayGridView currentGridView = null;
+            CoinApplication.ItemType itemType = null;
             switch (layoutID) {
                 case R.id.income_linear_layout:
-                    Dao<InCome, Integer> incomeDao =  databaseHelper.getInComeDao();
-                    if (isRemove) {
-                        coinApplication.removeInCome(positionItem, incomeDao, isRemoveTransaction, transactionDao);
-                    } else {
-                        coinApplication.addIncome(titleItem, incomeDao);
-                    }
+                    itemType = CoinApplication.ItemType.InCome;
                     mCommonAdaper = this.getmIncomeAdapter();
                     currentGridView = (TwoWayGridView)this.findViewById(R.id.income_linear_layout);
                     break;
                 case R.id.account_linear_layout:
-                    Dao<Account, Integer> accountDao =  databaseHelper.getAccountDao();
-                    if (isRemove) {
-                        coinApplication.removeAccount(positionItem, accountDao, isRemoveTransaction, transactionDao);
-                    } else {
-                        coinApplication.addAccount(titleItem, accountDao);
-                    }
+                    itemType = CoinApplication.ItemType.Account;
                     mCommonAdaper = this.getmAccountAdapter();
                     currentGridView = (TwoWayGridView)this.findViewById(R.id.account_linear_layout);
                     break;
                 case R.id.spend_linear_layout:
-                    Dao<Spend, Integer> spendDao =  databaseHelper.getSpendDao();
-                    if (isRemove) {
-                        coinApplication.removeSpend(positionItem, spendDao, isRemoveTransaction, transactionDao);
-                    } else {
-                        coinApplication.addSpend(titleItem, spendDao);
-                    }
+                    itemType = CoinApplication.ItemType.Spend;
                     mCommonAdaper = this.getmSpendAdapter();
                     currentGridView = (TwoWayGridView)this.findViewById(R.id.spend_linear_layout);
                     break;
                 case R.id.goal_linear_layout:
-                    Dao<Goal, Integer> goalDao = databaseHelper.getGoalDao();
-                    if (isRemove) {
-                        coinApplication.removeGoal(positionItem, goalDao, isRemoveTransaction, transactionDao);
-                    } else {
-                        coinApplication.addGoal(titleItem, goalDao);
-                    }
+                    itemType = CoinApplication.ItemType.Goal;
                     mCommonAdaper = this.getmGoalAdapter();
                     currentGridView = (TwoWayGridView)this.findViewById(R.id.goal_linear_layout);
                     break;
             }
+            if (isRemove) {
+                coinApplication.removeItem(itemType, positionItem,  incomeDao, accountDao, spendDao, goalDao,
+                        isRemoveTransaction, transactionDao);
+            } else {
+                coinApplication.addItem(itemType, titleItem, incomeDao, accountDao, spendDao, goalDao);
+            }
+
             mCommonAdaper.notifyDataSetChanged();
             currentGridView.setAdapter(mCommonAdaper);
         } catch (SQLException e) {

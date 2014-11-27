@@ -9,6 +9,7 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.misc.BaseDaoEnabled;
 import com.j256.ormlite.stmt.QueryBuilder;
+import com.j256.ormlite.stmt.Where;
 import com.j256.ormlite.table.DatabaseTable;
 import org.joda.money.CurrencyUnit;
 import org.joda.money.Money;
@@ -27,11 +28,8 @@ import java.util.List;
 @DatabaseTable(tableName = "CoinApplicationTable")
 public class CoinApplication extends BaseDaoEnabled {
 
-   // public enum ItemType { INCOME, ACCOUNT, SPEND, GOAL}
-    private final int INCOME = 1;
-    private final int ACCOUNT = 2;
-    private final int SPEND = 3;
-    private final int GOAL = 4;
+    public enum ItemType { InCome, Account, Spend, Goal}
+
 
     @DatabaseField(id = true)
     private int id = 1;
@@ -41,21 +39,17 @@ public class CoinApplication extends BaseDaoEnabled {
     private static final String localCurrency = "UAH";
 
     @DatabaseField(dataType = DataType.DATE)
-    private final Date installDate;
+    private Date installDate;
 
     @DatabaseField(dataType = DataType.DATE)
     private Date currentDate;
 
-   // @ForeignCollectionField(eager = true, maxEagerLevel = 2)
     List<InCome> inComeSources =  new ArrayList<InCome>();
 
-   // @ForeignCollectionField(eager = true, maxEagerLevel = 2)
     List<Account> accounts = new ArrayList<Account>();
 
-    //@ForeignCollectionField(eager = true, maxEagerLevel = 2)
     List<Spend> spends = new ArrayList<Spend>();
 
-   // @ForeignCollectionField(eager = true, maxEagerLevel = 2)
     List<Goal> goals  = new ArrayList<Goal>();
 
     @DatabaseField(canBeNull = true, dataType = DataType.SERIALIZABLE)
@@ -104,124 +98,129 @@ public class CoinApplication extends BaseDaoEnabled {
         this.currentDate = currentDate;
     }
 
-    public InCome addIncome(String title, Dao<InCome, Integer> incomeDao) throws SQLException {
-       InCome income = new InCome(title, localCurrency);
-       income.setDao(incomeDao);
-       income.create();
-       this.inComeSources.add(income);
-       return income;
-    }
-
-    public Account addAccount(String title, Dao<Account, Integer>accountDao) throws SQLException {
-        Account account = new Account(title, localCurrency);
-        account.setDao(accountDao);
-        account.create();
-        this.accounts.add(account);
-        return account;
-    }
-
-    public Spend addSpend(String title, Dao<Spend, Integer> spendDao) throws SQLException {
-        Spend spend = new Spend(title, localCurrency);
-        spend.setDao(spendDao);
-        spend.create();
-        this.spends.add(spend);
-        return spend;
-    }
-
-    public Goal addGoal(String title, Dao<Goal, Integer> goalDao) throws SQLException {
-        Goal goal = new Goal(title, localCurrency);
-        goal.setDao(goalDao);
-        goal.create();
-        this.goals.add(goal);
-        return goal;
-    }
-
-
-    public void removeInCome(int itemPosition, Dao<InCome , Integer> inComeDao, boolean isRemoveTransaction,
-                             Dao<Transaction, Integer> transactionDao) throws  SQLException{
-        if (isRemoveTransaction) {
-            removeTransaction(transactionDao, INCOME, itemPosition);
+    public void addItem(ItemType itemType, String title, Dao<InCome, Integer> incomeDao,
+                   Dao<Account, Integer> accountDao, Dao<Spend, Integer> spendDao, Dao<Goal, Integer> goalDao) throws SQLException {
+        switch(itemType) {
+            case InCome:
+                InCome income = new InCome(title, localCurrency);
+                income.setDao(incomeDao);
+                income.create();
+                this.inComeSources.add(income);
+                break;
+            case Account:
+                Account account = new Account(title, localCurrency);
+                account.setDao(accountDao);
+                account.create();
+                this.accounts.add(account);
+                break;
+            case Spend:
+                Spend spend = new Spend(title, localCurrency);
+                spend.setDao(spendDao);
+                spend.create();
+                this.spends.add(spend);
+                break;
+            case Goal:
+                Goal goal = new Goal(title, localCurrency);
+                goal.setDao(goalDao);
+                goal.create();
+                this.goals.add(goal);
+                break;
         }
-        InCome inCome = this.inComeSources.get(itemPosition);
-        inComeDao.deleteById(inCome.getId());
-        this.inComeSources.remove(itemPosition);
-
     }
 
-    public void removeAccount(int itemPosition, Dao<Account , Integer> accountDao, boolean isRemoveTransaction,
-                              Dao<Transaction, Integer> transactionDao) throws  SQLException {
+    public void removeItem(ItemType itemType, int itemPosition,
+                               Dao<InCome, Integer> inComeDao, Dao<Account, Integer> accountDao,
+                               Dao<Spend, Integer> spendDao, Dao<Goal, Integer> goalDao,
+                               boolean isRemoveTransaction, Dao<Transaction, Integer> transactionDao) throws  SQLException{
         if (isRemoveTransaction) {
-            removeTransaction(transactionDao, ACCOUNT, itemPosition);
+            removeTransaction(inComeDao, accountDao, spendDao, goalDao, transactionDao, itemType, itemPosition);
         }
-        Account account = this.accounts.get(itemPosition);
-        accountDao.deleteById(account.getId());
-        this.accounts.remove(itemPosition);
-    }
-
-    public void removeSpend(int itemPosition, Dao<Spend , Integer> spendDao, boolean isRemoveTransaction,
-                            Dao<Transaction, Integer> transactionDao) throws  SQLException {
-        if (isRemoveTransaction) {
-            removeTransaction(transactionDao, SPEND, itemPosition);
+        switch(itemType) {
+            case InCome:
+                InCome inCome = this.inComeSources.get(itemPosition);
+                inComeDao.deleteById(inCome.getId());
+                this.inComeSources.remove(itemPosition);
+                break;
+            case Account:
+                Account account = this.accounts.get(itemPosition);
+                accountDao.deleteById(account.getId());
+                this.accounts.remove(itemPosition);
+                break;
+            case Spend:
+                Spend spend = this.spends.get(itemPosition);
+                spendDao.deleteById(spend.getId());
+                this.spends.remove(itemPosition);
+                break;
+            case Goal:
+                Goal item = this.goals.get(itemPosition);
+                goalDao.deleteById(item.getId());
+                this.goals.remove(itemPosition);
+                break;
         }
-        Spend spend = this.spends.get(itemPosition);
-        spendDao.deleteById(spend.getId());
-        this.spends.remove(itemPosition);
-    }
-
-    public void removeGoal( int itemPosition, Dao<Goal , Integer> goalDao, boolean isRemoveTransaction,
-                            Dao<Transaction, Integer> transactionDao) throws  SQLException {
-        if (isRemoveTransaction) {
-            removeTransaction(transactionDao, GOAL, itemPosition);
-        }
-        Goal item = this.goals.get(itemPosition);
-        goalDao.deleteById(item.getId());
-        this.goals.remove(itemPosition);
     }
 
     //TODO need implement right removing by changing totalAmount of each item to which this transactions was related
-    private void removeTransaction(Dao<Transaction, Integer> transactionDao, final int itemType, int itemPosition) throws SQLException {
+    private void removeTransaction(Dao<InCome, Integer> inComeDao, Dao<Account, Integer> accountDao,
+                                   Dao<Spend, Integer> spendDao, Dao<Goal, Integer> goalDao,
+                                   Dao<Transaction, Integer> transactionDao, ItemType itemType,
+                                   int itemPosition) throws SQLException {
             List<Transaction>  transactions = loadTransaction(transactionDao, itemType, itemPosition );
-            switch (itemType) {
-                case INCOME:
-                    for (Transaction transaction: transactions) {
-                        MoneyFlow to;
-                        MoneyFlow from;
-                        if (transaction.getFromInCome() == null) {
-                            to = transaction.getToInCome();
 
-                            from = transaction.getFromInCome();
-                            if (from == null)
-                                from = transaction.getFromAccount();
-                            else if (from == null)
-                                from = transaction.getFromSpend();
-                            else if (from == null)
-                                from = transaction.getFromGoal();
-                        } else {
-                            from = transaction.getFromInCome();
-
-                            to = transaction.getToInCome();
-                            if (to == null)
-                                to = transaction.getToAccount();
-                            else if (to == null)
-                                to = transaction.getToSpend();
-                            else if (to == null)
-                                to = transaction.getToGoal();
-                        }
-
-                        //TODO here we have only ID of From and To item
-                        Money money = transaction.getMoneyCount();
-
-                        Money previousAmount = from.getTotal().minus(money);
-                        from.setTotal(previousAmount);
-                        previousAmount = to.getTotal().minus(money);
-                        to.setTotal(previousAmount);
-
-                    }
-                    break;
-            }
             for (Transaction transaction: transactions) {
+
+                Integer itemFromId = transaction.getFromId();
+                Integer itemToId = transaction.getToId();
+
+                ItemType itemFromType = transaction.getFromType();
+                ItemType itemToType = transaction.getToType();
+                this.queryItemById(transaction, inComeDao, accountDao, spendDao, goalDao, itemFromType, itemFromId);
+                this.queryItemById(transaction, inComeDao, accountDao, spendDao, goalDao, itemToType, itemToId);
                 transactionDao.deleteById(transaction.getId());
+
             }
+    }
+
+    private void queryItemById(Transaction transaction , Dao<InCome, Integer> inComeDao, Dao<Account, Integer> accountDao,
+                                    Dao<Spend, Integer> spendDao, Dao<Goal, Integer> goalDao,
+                                    ItemType itemFromType, int id) throws SQLException{
+        MoneyFlow item = null;
+        Money money = transaction.getMoneyCount();
+        int itemIndex;
+// TODO decreasing and increasing implementation should be here. Need implement Comparable
+        switch (itemFromType) {
+            case InCome:
+                item = inComeDao.queryForId(id);
+
+//                itemIndex = this.inComeSources.indexOf(item);
+                item.decreaseTotal(money);
+//                this.inComeSources.get(itemIndex).decreaseTotal(money);
+                break;
+            case Account:
+                item = accountDao.queryForId(id);
+
+//                itemIndex = this.accounts.indexOf(item);
+                item.decreaseTotal(money);
+//                this.accounts.get(itemIndex).decreaseTotal(money);
+                break;
+            case Spend:
+                item = spendDao.queryForId(id);
+
+//                itemIndex = this.spends.indexOf(item);
+                item.decreaseTotal(money);
+//                this.spends.get(itemIndex).decreaseTotal(money);
+                break;
+            case Goal:
+                item = goalDao.queryForId(id);
+//                itemIndex = this.goals.indexOf(item);
+                item.decreaseTotal(money);
+//                this.goals.get(itemIndex).decreaseTotal(money);
+                break;
+        }
+
+        if (item.update() != 1) {
+            throw new SQLException("Failure update entity: " + item.getClass().getSimpleName() +
+                    " id: " +  item.getId());
+        }
     }
 
     private void addInComeAccountTransaction(InCome from, Account to, String sMoney, Dao<Transaction, Integer> transactionDao,
@@ -311,37 +310,31 @@ public class CoinApplication extends BaseDaoEnabled {
 
 
     public List<Transaction> loadTransaction(Dao<Transaction, Integer> transactionDao,
-                                             Integer layoutId, Integer currentItemPosition) throws SQLException{
-        QueryBuilder<Transaction, Integer> tQb = transactionDao.queryBuilder();
-        Integer itemId;
-        switch (layoutId) {
-            case INCOME:
+                                             ItemType itemType, Integer currentItemPosition) throws SQLException{
+
+        Integer itemId = null;
+        switch (itemType) {
+            case InCome:
                 itemId = this.inComeSources.get(currentItemPosition).getId();
-                tQb.where().eq(Transaction.INCOME_FROM_FIELD_NAME, itemId)
-                           .or()
-                           .eq(Transaction.INCOME_TO_FIELD_NAME, itemId);
             break;
-            case ACCOUNT:
+            case Account:
                 itemId = this.accounts.get(currentItemPosition).getId();
-                tQb.where().eq(Transaction.ACCOUNT_FROM_FIELD_NAME, itemId)
-                           .or()
-                           .eq(Transaction.ACCOUNT_TO_FIELD_NAME, itemId);
             break;
-            case SPEND:
+            case Spend:
                 itemId = this.spends.get(currentItemPosition).getId();
-                tQb.where().eq(Transaction.SPEND_FROM_FIELD_NAME, itemId)
-                           .or()
-                           .eq(Transaction.SPEND_TO_FIELD_NAME, itemId);
             break;
-            case GOAL:
+            case Goal:
                 itemId = this.goals.get(currentItemPosition).getId();
-                tQb.where().eq(Transaction.GOAL_FROM_FIELD_NAME, itemId)
-                           .or()
-                           .eq(Transaction.GOAL_TO_FIELD_NAME, itemId);
             break;
         }
-        tQb.orderBy(Transaction.DATE_FIELD_NAME, false);//false mean that the last transaction on top of the list
 
+        QueryBuilder<Transaction, Integer> tQb = transactionDao.queryBuilder();
+        Where<Transaction, Integer> where = tQb.where();
+        where.or(where.and( where.eq(Transaction.FROM_TYPE_FIELD_NAME, itemType),
+                        where.eq(Transaction.FROM_ID_FIELD_NAME, itemId)),
+                where.and( where.eq(Transaction.TO_TYPE_FIELD_NAME, itemType),
+                        where.eq(Transaction.TO_ID_FIELD_NAME, itemId)));
+        tQb.orderBy(Transaction.DATE_FIELD_NAME, false);//false mean that the last transaction on top of the list
         List<Transaction> transactions = transactionDao.query(tQb.prepare());
         return transactions;
     }

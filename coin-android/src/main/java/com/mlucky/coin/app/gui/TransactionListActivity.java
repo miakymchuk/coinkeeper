@@ -26,7 +26,7 @@ public class TransactionListActivity extends Activity {
         databaseHelper = DatabaseHelper.getDataBaseHelper(getApplicationContext());
         Integer clickedCurrentLayoutId = null;
         Integer clickedCurrentItemPosition = null;
-        Integer layoutIndex = null;
+        CoinApplication.ItemType layoutIndex = null;
         if (savedInstanceState == null) {
             Bundle extras = getIntent().getExtras();
             clickedCurrentLayoutId = extras.getInt(LAYOUT_ID_BUNDLE_KEY);
@@ -53,17 +53,17 @@ public class TransactionListActivity extends Activity {
         transactionList.setAdapter(transactionAdapter);
     }
 
-    private int getLayoutIndex(int clickedCurrentLayoutId) {
+    private CoinApplication.ItemType getLayoutIndex(int clickedCurrentLayoutId) {
         switch (clickedCurrentLayoutId) {
             case R.id.income_linear_layout:
-                return 1;
+                return CoinApplication.ItemType.InCome;
             case R.id.account_linear_layout:
-                return 2;
+                return CoinApplication.ItemType.Account;
             case R.id.spend_linear_layout:
-                return 3;
+                return CoinApplication.ItemType.Spend;
             case R.id.goal_linear_layout:
-                return 4;
-            default: return 0;
+                return CoinApplication.ItemType.Goal;
+            default: return null;
         }
     }
 }
