@@ -40,11 +40,6 @@ public class Transaction extends BaseDaoEnabled {
     private String titleFrom;
     @DatabaseField
     private String titleTo;
-   // @DatabaseField(canBeNull = false, foreign = true,  foreignAutoRefresh = true)
-   // private MoneyFlow from;
-
-   // @DatabaseField(canBeNull = false, foreign = true, foreignAutoRefresh = true)
- //   private MoneyFlow to;
 
     @DatabaseField(columnName = DATE_FIELD_NAME)
     private Date transactionDate;

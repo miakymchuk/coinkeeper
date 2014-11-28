@@ -17,10 +17,18 @@
     <string name="spend">Expenses</string>
     <string name="goal">Goal</string>
     <string name="budget">Budget:</string>
+    <string name="date">Date</string>
+    <string name="time">Time</string>
     <string name="transaction_from">From:</string>
     <string name="transaction_to">To:</string>
+    <string name="transaction_edit_title">Edit transaction</string>
+    <string name="transaction_btn_remove">Remove</string>
+    <string name="transaction_btn_done">Done</string>
+    <string name="transaction_amount">Amount</string>
 
     <string name="remove_item_and_transaction">Remove item and transaction</string>
     <string name="remove_item">Remove item</string>
+
+
 
 </resources>

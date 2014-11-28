@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:weightSum="1">
+
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/transaction_edit_title"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="10dp" android:textSize="24sp"/>
+    <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/transaction_btn_remove"
+            android:id="@+id/btn_delete_transaction"
+            android:layout_gravity="center_horizontal"
+            android:longClickable="true"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"/>
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/transaction_from"
+            android:layout_marginTop="10dp" android:textSize="18sp" android:paddingRight="10dp"
+            android:paddingLeft="10dp"/>
+    <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
+            android:minHeight="50dp"
+            android:layout_marginTop="10dp">
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tv_transaction_from_title"
+                android:textColor="@android:color/holo_red_dark"
+                android:textSize="18sp"
+                android:layout_marginTop="10dp" android:paddingLeft="15dp" android:paddingRight="15dp"/>
+    </LinearLayout>
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/transaction_to"
+            android:id="@+id/textView3" android:layout_marginTop="10dp" android:textSize="18sp"
+            android:paddingRight="10dp" android:paddingLeft="10dp"/>
+    <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
+            android:minHeight="60dp"
+            android:layout_marginTop="10dp">
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tv_transaction_to_title"
+                android:textColor="@android:color/holo_red_dark"
+                android:textSize="18sp"
+                android:layout_marginTop="10dp" android:paddingLeft="15dp" android:paddingRight="15dp"/>
+    </LinearLayout>
+    <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:layout_marginTop="10dp">
+        <TextView android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:text="@string/transaction_amount"
+                  android:layout_centerVertical="true"
+                  android:layout_alignParentStart="true" android:textSize="18sp" android:paddingRight="10dp"
+                  android:paddingLeft="10dp"/>
+        <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/et_transaction_amount"
+                android:layout_centerVertical="true"
+                android:layout_alignParentEnd="true"
+                android:gravity="right"
+                android:minWidth="120dp"/>
+    </RelativeLayout>
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_weight="0.24">
+        <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentStart="false"
+                android:layout_weight="1">
+            <TextView android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:text="@string/date"
+                      android:layout_centerVertical="true"
+                      android:layout_alignParentStart="true"
+                      android:layout_weight="1" android:textSize="18sp" android:paddingTop="10dp"
+                      android:paddingBottom="10dp" android:paddingRight="10dp" android:paddingLeft="10dp"/>
+            <TextView android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:text="@string/time"
+                      android:id="@+id/tv_transaction_date"
+                      android:layout_centerVertical="true"
+                      android:layout_alignParentStart="true"
+                      android:layout_weight="1" android:textSize="18sp" android:paddingTop="10dp"
+                      android:paddingBottom="10dp" android:paddingRight="10dp" android:paddingLeft="10dp"/>
+        </LinearLayout>
+        <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentStart="false"
+                android:layout_weight="1">
+            <EditText
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:inputType="date"
+                    android:ems="10"
+                    android:gravity="right"
+                    android:id="@+id/et_transaction_date"/>
+            <EditText
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:inputType="time"
+                    android:ems="10"
+                    android:gravity="right"
+                    android:id="@+id/et_transaction_time"/>
+        </LinearLayout>
+    </LinearLayout>
+    <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textMultiLine"
+            android:ems="10"
+            android:id="@+id/etm_transaction_note"
+            android:layout_weight="0.26"
+            android:layout_marginTop="10dp"/>
+    <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/transaction_btn_done"
+            android:id="@+id/btn_done_transaction"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="10dp"/>
+</LinearLayout>

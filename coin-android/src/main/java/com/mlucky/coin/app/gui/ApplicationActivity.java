@@ -284,4 +284,9 @@ public class ApplicationActivity extends Activity {
             e.printStackTrace();
         }
     }
+
+    public static DatabaseHelper getDatabaseHelper() {
+        return databaseHelper;
+    }
+
 }
