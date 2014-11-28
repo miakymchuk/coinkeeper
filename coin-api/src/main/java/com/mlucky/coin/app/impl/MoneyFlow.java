@@ -149,4 +149,25 @@ public abstract class MoneyFlow extends BaseDaoEnabled {
     public Integer getId() {
         return id;
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 37;
+        hash = hash * id;
+        hash = hash *17 + title.hashCode();
+        hash = hash *17 + total.hashCode();
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof MoneyFlow)) {
+            return false;
+        }
+        MoneyFlow mf = (MoneyFlow)o;
+
+        return id.equals(mf.id) &&
+                title.equals(mf.title) &&
+                total.equals(mf.total);
+    }
 }

@@ -159,7 +159,6 @@ public class CoinApplication extends BaseDaoEnabled {
         }
     }
 
-    //TODO need implement right removing by changing totalAmount of each item to which this transactions was related
     private void removeTransaction(Dao<InCome, Integer> inComeDao, Dao<Account, Integer> accountDao,
                                    Dao<Spend, Integer> spendDao, Dao<Goal, Integer> goalDao,
                                    Dao<Transaction, Integer> transactionDao, ItemType itemType,
@@ -173,8 +172,12 @@ public class CoinApplication extends BaseDaoEnabled {
 
                 ItemType itemFromType = transaction.getFromType();
                 ItemType itemToType = transaction.getToType();
-                this.queryItemById(transaction, inComeDao, accountDao, spendDao, goalDao, itemFromType, itemFromId);
-                this.queryItemById(transaction, inComeDao, accountDao, spendDao, goalDao, itemToType, itemToId);
+                boolean isRollbackMoneyOperation;
+                if (itemFromType.equals(ItemType.InCome) && itemToType.equals(ItemType.Account))  isRollbackMoneyOperation = false;
+                else isRollbackMoneyOperation = true;
+                this.queryItemById(transaction, inComeDao, accountDao, spendDao, goalDao, itemFromType, itemFromId, isRollbackMoneyOperation);
+
+                this.queryItemById(transaction, inComeDao, accountDao, spendDao, goalDao, itemToType, itemToId, false);
                 transactionDao.deleteById(transaction.getId());
 
             }
@@ -182,38 +185,45 @@ public class CoinApplication extends BaseDaoEnabled {
 
     private void queryItemById(Transaction transaction , Dao<InCome, Integer> inComeDao, Dao<Account, Integer> accountDao,
                                     Dao<Spend, Integer> spendDao, Dao<Goal, Integer> goalDao,
-                                    ItemType itemFromType, int id) throws SQLException{
+                                    ItemType itemFromType, int id, boolean isRollbackMoneyOperation) throws SQLException{
         MoneyFlow item = null;
         Money money = transaction.getMoneyCount();
         int itemIndex;
-// TODO decreasing and increasing implementation should be here. Need implement Comparable
         switch (itemFromType) {
             case InCome:
                 item = inComeDao.queryForId(id);
 
-//                itemIndex = this.inComeSources.indexOf(item);
+                itemIndex = this.inComeSources.indexOf(item);
                 item.decreaseTotal(money);
-//                this.inComeSources.get(itemIndex).decreaseTotal(money);
+                this.inComeSources.get(itemIndex).decreaseTotal(money);
                 break;
             case Account:
                 item = accountDao.queryForId(id);
-
-//                itemIndex = this.accounts.indexOf(item);
-                item.decreaseTotal(money);
-//                this.accounts.get(itemIndex).decreaseTotal(money);
+                itemIndex = this.accounts.indexOf(item);
+                if (isRollbackMoneyOperation) {
+                    item.increaseTotal(money);
+                    this.accounts.get(itemIndex).increaseTotal(money);
+                } else {
+                    item.decreaseTotal(money);
+                    this.accounts.get(itemIndex).decreaseTotal(money);
+                }
                 break;
             case Spend:
                 item = spendDao.queryForId(id);
-
-//                itemIndex = this.spends.indexOf(item);
+                itemIndex = this.spends.indexOf(item);
                 item.decreaseTotal(money);
-//                this.spends.get(itemIndex).decreaseTotal(money);
+                this.spends.get(itemIndex).decreaseTotal(money);
                 break;
             case Goal:
                 item = goalDao.queryForId(id);
-//                itemIndex = this.goals.indexOf(item);
-                item.decreaseTotal(money);
-//                this.goals.get(itemIndex).decreaseTotal(money);
+                itemIndex = this.goals.indexOf(item);
+                if (isRollbackMoneyOperation) {
+                    item.increaseTotal(money);
+                    this.goals.get(itemIndex).increaseTotal(money);
+                } else {
+                    item.decreaseTotal(money);
+                    this.goals.get(itemIndex).decreaseTotal(money);
+                }
                 break;
         }
 
@@ -221,6 +231,7 @@ public class CoinApplication extends BaseDaoEnabled {
             throw new SQLException("Failure update entity: " + item.getClass().getSimpleName() +
                     " id: " +  item.getId());
         }
+        item.refresh();
     }
 
     private void addInComeAccountTransaction(InCome from, Account to, String sMoney, Dao<Transaction, Integer> transactionDao,
