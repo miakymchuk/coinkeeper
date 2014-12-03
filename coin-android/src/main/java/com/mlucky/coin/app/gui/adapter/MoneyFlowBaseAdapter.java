@@ -1,4 +1,4 @@
-package com.mlucky.coin.app.adapter;
+package com.mlucky.coin.app.gui.adapter;
 
 import android.app.Activity;
 import android.app.FragmentManager;

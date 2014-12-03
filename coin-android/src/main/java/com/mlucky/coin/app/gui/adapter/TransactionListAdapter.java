@@ -1,12 +1,10 @@
-package com.mlucky.coin.app.adapter;
+package com.mlucky.coin.app.gui.adapter;
 
-import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ListView;
 import com.mlucky.coin.app.gui.R;
 import com.mlucky.coin.app.impl.Transaction;
 

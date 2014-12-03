@@ -29,40 +29,42 @@
             android:text="@string/transaction_from"
             android:layout_marginTop="10dp" android:textSize="18sp" android:paddingRight="10dp"
             android:paddingLeft="10dp"/>
-    <LinearLayout
-            android:orientation="horizontal"
+    <HorizontalScrollView
             android:layout_width="match_parent"
-            android:layout_height="35dp"
-            android:minHeight="50dp"
-            android:layout_marginTop="10dp">
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/tv_transaction_from_title"
-                android:textColor="@android:color/holo_red_dark"
-                android:textSize="18sp"
-                android:layout_marginTop="10dp" android:paddingLeft="15dp" android:paddingRight="15dp"/>
-    </LinearLayout>
+            android:layout_height="50dp"
+            android:background="@drawable/transaction_background"
+            android:scrollbars="none">
+            <RadioGroup
+
+                    android:id="@+id/list_view_items_from"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:orientation="horizontal">
+
+            </RadioGroup>
+    </HorizontalScrollView>
     <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/transaction_to"
             android:id="@+id/textView3" android:layout_marginTop="10dp" android:textSize="18sp"
             android:paddingRight="10dp" android:paddingLeft="10dp"/>
-    <LinearLayout
-            android:orientation="horizontal"
+    <HorizontalScrollView
             android:layout_width="match_parent"
-            android:layout_height="35dp"
-            android:minHeight="60dp"
-            android:layout_marginTop="10dp">
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/tv_transaction_to_title"
-                android:textColor="@android:color/holo_red_dark"
-                android:textSize="18sp"
-                android:layout_marginTop="10dp" android:paddingLeft="15dp" android:paddingRight="15dp"/>
-    </LinearLayout>
+            android:layout_height="50dp"
+            android:background="@drawable/transaction_background"
+            android:scrollbars="none">
+        <RadioGroup
+                android:id="@+id/list_view_items_to"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="horizontal">
+        </RadioGroup>
+    </HorizontalScrollView>
+    <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/horizontalScrollView_items_to"/>
     <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="64dp"

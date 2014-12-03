@@ -297,6 +297,20 @@ public class CoinApplication extends BaseDaoEnabled {
         else return null;
     }
 
+    public List<? extends MoneyFlow> getMoneyFlowList(ItemType itemType) {
+        switch (itemType) {
+            case InCome:
+                return inComeSources;
+            case Account:
+                return accounts;
+            case Spend:
+                return spends;
+            case Goal:
+                return goals;
+            default: return null;
+        }
+    }
+
     public static boolean isDragAllowed(String dragFromItemType, String dropToItemType, int dragFromItemIndex,int  dropToItemIndex) {
         if (("InCome".equals(dragFromItemType) && "InCome".equals(dropToItemType)) ||
             ("InCome".equals(dragFromItemType) && "Spend".equals(dropToItemType)) ||

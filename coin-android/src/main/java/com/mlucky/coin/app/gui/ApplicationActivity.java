@@ -9,14 +9,13 @@ import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
 import com.jess.ui.TwoWayAdapterView;
 import com.jess.ui.TwoWayGridView;
-import com.mlucky.coin.app.adapter.MoneyFlowBaseAdapter;
+import com.mlucky.coin.app.gui.adapter.MoneyFlowBaseAdapter;
 import com.mlucky.coin.app.db.DatabaseHelper;
 import com.mlucky.coin.app.gui.dialog.AddItemDialogFragment;
 import com.mlucky.coin.app.gui.dialog.RemoveItemDialogFragment;
 import com.mlucky.coin.app.impl.*;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ApplicationActivity extends Activity {

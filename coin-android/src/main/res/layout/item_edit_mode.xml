@@ -1,0 +1,11 @@
+<RadioButton
+        xmlns:android="http://schemas.android.com/apk/res/android"
+
+        android:layout_width="52dp"
+        android:layout_height="48dp"
+        android:button="@null"
+        android:background="@drawable/transaction_edit_mode_selector"
+        android:textColor="@android:color/white"
+        android:textSize="12sp"
+        android:paddingTop="8dp"
+        android:gravity="center|top"/>

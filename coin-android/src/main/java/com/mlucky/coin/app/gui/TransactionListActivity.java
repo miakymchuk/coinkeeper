@@ -7,7 +7,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import com.j256.ormlite.dao.Dao;
-import com.mlucky.coin.app.adapter.TransactionListAdapter;
+import com.mlucky.coin.app.gui.adapter.TransactionListAdapter;
 import com.mlucky.coin.app.db.DatabaseHelper;
 import com.mlucky.coin.app.impl.CoinApplication;
 import com.mlucky.coin.app.impl.Transaction;

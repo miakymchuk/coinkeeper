@@ -1,10 +1,8 @@
-package com.mlucky.coin.app.adapter;
+package com.mlucky.coin.app.gui.adapter;
 
 import android.view.View;
 import android.widget.TextView;
 import com.mlucky.coin.app.gui.R;
-
-import java.util.Date;
 
 /**
  * Created by m.iakymchuk on 24.11.2014.
