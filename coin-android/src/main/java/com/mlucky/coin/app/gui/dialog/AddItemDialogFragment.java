@@ -7,15 +7,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.*;
-import com.j256.ormlite.dao.Dao;
-import com.jess.ui.TwoWayGridView;
-import com.mlucky.coin.app.adapter.MoneyFlowBaseAdapter;
-import com.mlucky.coin.app.db.DatabaseHelper;
 import com.mlucky.coin.app.gui.ApplicationActivity;
 import com.mlucky.coin.app.gui.R;
-import com.mlucky.coin.app.impl.*;
-
-import java.sql.SQLException;
 
 /**
  * Created by m.iakymchuk on 12.11.2014.

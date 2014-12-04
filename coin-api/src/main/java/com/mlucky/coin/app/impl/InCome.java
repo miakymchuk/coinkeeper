@@ -21,8 +21,8 @@ public class InCome extends MoneyFlow {
         super();
     }
 
-    public InCome(String title, String currency) {
-        super(title, currency);
+    public InCome(String title, String currency, CoinApplication.ItemType itemType) {
+        super(title, currency, itemType);
         budget = new Budget(getCurrency());
     }
 }

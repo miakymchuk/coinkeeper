@@ -2,11 +2,8 @@ package com.mlucky.coin.app.impl;
 
 
 import com.j256.ormlite.dao.Dao;
-import com.j256.ormlite.dao.DaoManager;
-import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
-import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.misc.BaseDaoEnabled;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.stmt.Where;
@@ -17,7 +14,6 @@ import org.joda.money.Money;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -102,25 +98,25 @@ public class CoinApplication extends BaseDaoEnabled {
                    Dao<Account, Integer> accountDao, Dao<Spend, Integer> spendDao, Dao<Goal, Integer> goalDao) throws SQLException {
         switch(itemType) {
             case InCome:
-                InCome income = new InCome(title, localCurrency);
+                InCome income = new InCome(title, localCurrency, itemType);
                 income.setDao(incomeDao);
                 income.create();
                 this.inComeSources.add(income);
                 break;
             case Account:
-                Account account = new Account(title, localCurrency);
+                Account account = new Account(title, localCurrency, itemType);
                 account.setDao(accountDao);
                 account.create();
                 this.accounts.add(account);
                 break;
             case Spend:
-                Spend spend = new Spend(title, localCurrency);
+                Spend spend = new Spend(title, localCurrency, itemType);
                 spend.setDao(spendDao);
                 spend.create();
                 this.spends.add(spend);
                 break;
             case Goal:
-                Goal goal = new Goal(title, localCurrency);
+                Goal goal = new Goal(title, localCurrency, itemType);
                 goal.setDao(goalDao);
                 goal.create();
                 this.goals.add(goal);
@@ -133,7 +129,7 @@ public class CoinApplication extends BaseDaoEnabled {
                                Dao<Spend, Integer> spendDao, Dao<Goal, Integer> goalDao,
                                boolean isRemoveTransaction, Dao<Transaction, Integer> transactionDao) throws  SQLException{
         if (isRemoveTransaction) {
-            removeTransaction(inComeDao, accountDao, spendDao, goalDao, transactionDao, itemType, itemPosition);
+            removeTransactions(inComeDao, accountDao, spendDao, goalDao, transactionDao, itemType, itemPosition);
         }
         switch(itemType) {
             case InCome:
@@ -159,33 +155,63 @@ public class CoinApplication extends BaseDaoEnabled {
         }
     }
 
-    private void removeTransaction(Dao<InCome, Integer> inComeDao, Dao<Account, Integer> accountDao,
-                                   Dao<Spend, Integer> spendDao, Dao<Goal, Integer> goalDao,
-                                   Dao<Transaction, Integer> transactionDao, ItemType itemType,
-                                   int itemPosition) throws SQLException {
-            List<Transaction>  transactions = loadTransaction(transactionDao, itemType, itemPosition );
+    private void removeTransactions(Dao<InCome, Integer> inComeDao, Dao<Account, Integer> accountDao,
+                                    Dao<Spend, Integer> spendDao, Dao<Goal, Integer> goalDao,
+                                    Dao<Transaction, Integer> transactionDao, ItemType itemType,
+                                    int itemPosition) throws SQLException {
+            List<Transaction>  transactions = loadTransaction(transactionDao, itemType, itemPosition);
 
             for (Transaction transaction: transactions) {
-
-                Integer itemFromId = transaction.getFromId();
-                Integer itemToId = transaction.getToId();
-
-                ItemType itemFromType = transaction.getFromType();
-                ItemType itemToType = transaction.getToType();
-                boolean isRollbackMoneyOperation;
-                if (itemFromType.equals(ItemType.InCome) && itemToType.equals(ItemType.Account))  isRollbackMoneyOperation = false;
-                else isRollbackMoneyOperation = true;
-                this.queryItemById(transaction, inComeDao, accountDao, spendDao, goalDao, itemFromType, itemFromId, isRollbackMoneyOperation);
-
-                this.queryItemById(transaction, inComeDao, accountDao, spendDao, goalDao, itemToType, itemToId, false);
+                changeItemsTotalAmount(transaction, inComeDao, accountDao, spendDao, goalDao);
                 transactionDao.deleteById(transaction.getId());
-
             }
     }
 
-    private void queryItemById(Transaction transaction , Dao<InCome, Integer> inComeDao, Dao<Account, Integer> accountDao,
-                                    Dao<Spend, Integer> spendDao, Dao<Goal, Integer> goalDao,
-                                    ItemType itemFromType, int id, boolean isRollbackMoneyOperation) throws SQLException{
+    public void removeTransaction(Transaction transaction, Dao<InCome, Integer> inComeDao, Dao<Account, Integer> accountDao,
+                                  Dao<Spend, Integer> spendDao, Dao<Goal, Integer> goalDao,
+                                  Dao<Transaction, Integer> transactionDao)  {
+        try {
+            changeItemsTotalAmount(transaction, inComeDao, accountDao, spendDao, goalDao);
+            if (transactionDao.deleteById(transaction.getId()) != 1) {
+                throw new SQLException("Failed to delete Transaction : " + transaction.getId());
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void changeItemsTotalAmount(Transaction transaction, Dao<InCome, Integer> inComeDao, Dao<Account, Integer> accountDao,
+                                       Dao<Spend, Integer> spendDao, Dao<Goal, Integer> goalDao)  throws SQLException {
+        Integer itemFromId = transaction.getFromId();
+        Integer itemToId = transaction.getToId();
+
+        ItemType itemFromType = transaction.getFromType();
+        ItemType itemToType = transaction.getToType();
+
+        boolean isRollbackMoneyOperation = (itemFromType.equals(ItemType.InCome)
+                && itemToType.equals(ItemType.Account)) ? false: true;
+
+        this.updateItemAmount(transaction, inComeDao, accountDao, spendDao, goalDao, itemFromType,
+                itemFromId, isRollbackMoneyOperation);
+        this.updateItemAmount(transaction, inComeDao, accountDao, spendDao, goalDao, itemToType,
+                itemToId, false);
+    }
+
+    public void editItemRelatedToTransaction( MoneyFlow from, MoneyFlow to, MoneyFlow previousFrom, MoneyFlow previousTo,
+                                              Money beforeTransactionAmount, String money, Transaction transaction,
+                                              Dao<InCome, Integer> inComeDao, Dao<Account, Integer> accountDao,
+                                             Dao<Spend, Integer> spendDao, Dao<Goal, Integer> goalDao) throws SQLException {
+        ItemType itemFromType = from.getItemType();
+        ItemType itemToType = to.getItemType();
+
+        Dao<? extends MoneyFlow, Integer>fromDao = getDao(itemFromType, inComeDao, accountDao, spendDao,  goalDao);
+        Dao<? extends MoneyFlow, Integer>toDao = getDao(itemToType, inComeDao, accountDao, spendDao,  goalDao);
+        from.editTransactionItems(to, previousFrom, previousTo, beforeTransactionAmount, money, fromDao, toDao);
+    }
+
+    private void updateItemAmount(Transaction transaction, Dao<InCome, Integer> inComeDao, Dao<Account, Integer> accountDao,
+                                  Dao<Spend, Integer> spendDao, Dao<Goal, Integer> goalDao,
+                                  ItemType itemFromType, int id, boolean isRollbackMoneyOperation) throws SQLException {
         MoneyFlow item = null;
         Money money = transaction.getMoneyCount();
         int itemIndex;
@@ -311,6 +337,21 @@ public class CoinApplication extends BaseDaoEnabled {
         }
     }
 
+    public Dao<? extends MoneyFlow, Integer> getDao(ItemType itemType, Dao<InCome, Integer> inComeDao, Dao<Account, Integer> accountDao,
+                                           Dao<Spend, Integer> spendDao, Dao<Goal, Integer> goalDao) {
+        switch (itemType) {
+            case InCome:
+                return inComeDao;
+            case Account:
+                return accountDao;
+            case Spend:
+                return spendDao;
+            case Goal:
+                return goalDao;
+            default: return null;
+        }
+    }
+
     public static boolean isDragAllowed(String dragFromItemType, String dropToItemType, int dragFromItemIndex,int  dropToItemIndex) {
         if (("InCome".equals(dragFromItemType) && "InCome".equals(dropToItemType)) ||
             ("InCome".equals(dragFromItemType) && "Spend".equals(dropToItemType)) ||
@@ -335,8 +376,7 @@ public class CoinApplication extends BaseDaoEnabled {
 
 
     public List<Transaction> loadTransaction(Dao<Transaction, Integer> transactionDao,
-                                             ItemType itemType, Integer currentItemPosition) throws SQLException{
-
+                                             ItemType itemType, Integer currentItemPosition) throws SQLException {
         Integer itemId = null;
         switch (itemType) {
             case InCome:
@@ -364,24 +404,49 @@ public class CoinApplication extends BaseDaoEnabled {
         return transactions;
     }
 
-    public static void  startTransaction(MoneyFlow from, MoneyFlow to, String fromItemType, String toItemType, String title,
+    public static void  startTransaction(MoneyFlow from, MoneyFlow to, String fromItemType, String toItemType, String money,
                                          Dao<Transaction, Integer> transactionDao,
                                          Dao<InCome, Integer> inComeDao,  Dao<Account, Integer> accountDao,
                                          Dao<Spend, Integer> spendDao, Dao<Goal, Integer> goalDao) {
         if (fromItemType.equals("InCome") && toItemType.equals("Account")) {
-            coinApplication.addInComeAccountTransaction((InCome) from, (Account) to, title, transactionDao, inComeDao, accountDao);
+            coinApplication.addInComeAccountTransaction((InCome) from, (Account) to, money, transactionDao, inComeDao, accountDao);
         } else if (fromItemType.equals("Account") && toItemType.equals("Spend")) {
-            coinApplication.addAccountSpendTransaction((Account) from, (Spend) to, title, transactionDao, accountDao, spendDao);
+            coinApplication.addAccountSpendTransaction((Account) from, (Spend) to, money, transactionDao, accountDao, spendDao);
         } else if (fromItemType.equals("Account") && toItemType.equals("Goal")) {
-            coinApplication.addAccountGoalTransaction((Account) from, (Goal) to,title, transactionDao, accountDao, goalDao);
+            coinApplication.addAccountGoalTransaction((Account) from, (Goal) to,money, transactionDao, accountDao, goalDao);
         } else if (fromItemType.equals("Goal") && toItemType.equals("Spend")) {
-            coinApplication.addGoalSpendTransaction((Goal) from, (Spend) to, title, transactionDao, goalDao, spendDao);
+            coinApplication.addGoalSpendTransaction((Goal) from, (Spend) to, money, transactionDao, goalDao, spendDao);
         } else if (fromItemType.equals("Goal") && toItemType.equals("Goal")) {
-            coinApplication.addGoalGoalTransaction((Goal) from, (Goal) to, title, transactionDao, goalDao, goalDao);
+            coinApplication.addGoalGoalTransaction((Goal) from, (Goal) to, money, transactionDao, goalDao, goalDao);
         } else if (fromItemType.equals("Account") && toItemType.equals("Account")) {
-            coinApplication.addAccountAccountTransaction((Account) from, (Account) to, title, transactionDao, accountDao, accountDao);
+            coinApplication.addAccountAccountTransaction((Account) from, (Account) to, money, transactionDao, accountDao, accountDao);
         }else if (fromItemType.equals("Goal") && toItemType.equals("Account")) {
-            coinApplication.addGoalAccountTransaction((Goal) from, (Account) to, title, transactionDao,goalDao, accountDao);
+            coinApplication.addGoalAccountTransaction((Goal) from, (Account) to, money, transactionDao,goalDao, accountDao);
         }
+    }
+
+    public static void  startTransaction(MoneyFlow from, MoneyFlow to, ItemType fromItemType, ItemType toItemType, String money,
+                                         Dao<Transaction, Integer> transactionDao,
+                                         Dao<InCome, Integer> inComeDao,  Dao<Account, Integer> accountDao,
+                                         Dao<Spend, Integer> spendDao, Dao<Goal, Integer> goalDao) {
+        if (fromItemType.equals(ItemType.InCome) && toItemType.equals(ItemType.Account)) {
+            coinApplication.addInComeAccountTransaction((InCome) from, (Account) to, money, transactionDao, inComeDao, accountDao);
+        } else if (fromItemType.equals(ItemType.Account) && toItemType.equals(ItemType.Spend)) {
+            coinApplication.addAccountSpendTransaction((Account) from, (Spend) to, money, transactionDao, accountDao, spendDao);
+        } else if (fromItemType.equals(ItemType.Account) && toItemType.equals(ItemType.Goal)) {
+            coinApplication.addAccountGoalTransaction((Account) from, (Goal) to,money, transactionDao, accountDao, goalDao);
+        } else if (fromItemType.equals(ItemType.Goal) && toItemType.equals(ItemType.Spend)) {
+            coinApplication.addGoalSpendTransaction((Goal) from, (Spend) to, money, transactionDao, goalDao, spendDao);
+        } else if (fromItemType.equals(ItemType.Goal) && toItemType.equals(ItemType.Goal)) {
+            coinApplication.addGoalGoalTransaction((Goal) from, (Goal) to, money, transactionDao, goalDao, goalDao);
+        } else if (fromItemType.equals(ItemType.Account) && toItemType.equals(ItemType.Account)) {
+            coinApplication.addAccountAccountTransaction((Account) from, (Account) to, money, transactionDao, accountDao, accountDao);
+        }else if (fromItemType.equals(ItemType.Goal) && toItemType.equals(ItemType.Account)) {
+            coinApplication.addGoalAccountTransaction((Goal) from, (Account) to, money, transactionDao,goalDao, accountDao);
+        }
+    }
+
+    public static String getLocalCurrency() {
+        return localCurrency;
     }
 }

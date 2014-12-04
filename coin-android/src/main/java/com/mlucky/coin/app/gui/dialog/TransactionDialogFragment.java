@@ -43,7 +43,7 @@ public class TransactionDialogFragment extends DialogFragment {
 
         LayoutInflater inflater = mActivity.getLayoutInflater();
         LinearLayout dialogTransactionLayout = (LinearLayout)inflater.inflate(R.layout.dialog_transaction, null);
-        final EditText transactionText = (EditText)dialogTransactionLayout.findViewById(R.id.transaction_amount);
+        final EditText transactionText = (EditText)dialogTransactionLayout.findViewById(R.id.dialog_transaction_amount);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
         builder.setTitle(R.string.dialog_title_transaction).setView(dialogTransactionLayout);
@@ -67,14 +67,14 @@ public class TransactionDialogFragment extends DialogFragment {
 
                 MoneyFlow from = coinApplication.getMoneyFlowList(fromItemType).get(fromIndex);
                 MoneyFlow to = coinApplication.getMoneyFlowList(toItemType).get(toIndex);
-                String itemTitle = transactionText.getText().toString();
+                String money = transactionText.getText().toString();
                 try {
                     Dao<InCome, Integer> inComeDao  = databaseHelper.getInComeDao();
                     Dao<Account, Integer> accountDao  = databaseHelper.getAccountDao();
                     Dao<Spend, Integer> spendDao  = databaseHelper.getSpendDao();
                     Dao<Goal, Integer> goalDao  = databaseHelper.getGoalDao();
                     Dao<Transaction, Integer> transactionDao  = databaseHelper.getTransactionDao();
-                    CoinApplication.startTransaction(from, to , fromItemType, toItemType, itemTitle,
+                    CoinApplication.startTransaction(from, to , fromItemType, toItemType, money,
                             transactionDao, inComeDao, accountDao, spendDao, goalDao);
                 } catch (SQLException e) {
                     e.printStackTrace();

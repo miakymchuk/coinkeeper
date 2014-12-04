@@ -17,6 +17,7 @@
             android:layout_height="wrap_content"
             android:text="@string/transaction_btn_remove"
             android:id="@+id/btn_delete_transaction"
+            android:onClick="onClickRemoveTransactionButton"
             android:layout_gravity="center_horizontal"
             android:longClickable="true"
             android:layout_marginLeft="20dp"
@@ -148,6 +149,7 @@
             android:layout_height="wrap_content"
             android:text="@string/transaction_btn_done"
             android:id="@+id/btn_done_transaction"
+            android:onClick="onClickDoneTransactionButton"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
             android:layout_marginTop="10dp"/>

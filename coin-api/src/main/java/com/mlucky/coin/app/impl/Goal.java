@@ -35,8 +35,8 @@ public class Goal extends MoneyFlow {
 
     public boolean isClosed() { return isClosed; }
 
-    public Goal(String title, String currency) {
-        super(title, currency);
+    public Goal(String title, String currency, CoinApplication.ItemType itemType) {
+        super(title, currency, itemType);
     }
 
 }

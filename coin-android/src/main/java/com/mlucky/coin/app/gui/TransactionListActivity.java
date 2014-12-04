@@ -23,7 +23,15 @@ public class TransactionListActivity extends Activity {
     private final String LAYOUT_ID_BUNDLE_KEY = "layoutId";
     private final String ITEM_POSITION_BUNDLE_KEY = "clickedCurrentItemPosition";
     private final String TRANSACTION_ID_BUNDLE_KEY = "transaction_id";
+    private final String TRANSACTION_INDEX_BUNDLE_KEY = "transaction_index";
+    private final String DONE_CODE_BUNDLE_KEY = "transaction_done_code";
+    final int DONE = 700;
+    final int REMOVE = 600;
 
+    private List<Transaction> transactions;
+    TransactionListAdapter transactionAdapter;
+    ListView transactionList;
+    private final int TRANSACTION_ACTIVITY_REQUEST_CODE = 888;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,7 +47,7 @@ public class TransactionListActivity extends Activity {
         }
 
         CoinApplication coinApplication;
-        final List<Transaction> transactions;
+
         try {
             Dao<CoinApplication, Integer> coinDao = databaseHelper.getCoinApplicationDao();
             coinApplication = CoinApplication.getCoinApplication(coinDao);
@@ -48,18 +56,20 @@ public class TransactionListActivity extends Activity {
 
             setContentView(R.layout.transaction_list);
 
-            ListView transactionList = (ListView)findViewById(R.id.transaction_list);
+             transactionList = (ListView)findViewById(R.id.transaction_list);
 
-            TransactionListAdapter transactionAdapter = new TransactionListAdapter(this, transactions,
+            transactionAdapter = new TransactionListAdapter(this, transactions,
                     clickedCurrentLayoutId, clickedCurrentItemPosition);
             transactionList.setAdapter(transactionAdapter);
             transactionList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
-                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                public void onItemClick(AdapterView<?> adapterView, View view, int index, long l) {
                     Intent intent = new Intent(TransactionListActivity.this, TransactionActivity.class);
-                    Integer position = transactions.get(i).getId();
-                    intent.putExtra(TRANSACTION_ID_BUNDLE_KEY, position);
-                    startActivity(intent);
+                    Integer transactionDbId = transactions.get(index).getId();
+                    intent.putExtra(TRANSACTION_ID_BUNDLE_KEY, transactionDbId);
+                    intent.putExtra(TRANSACTION_INDEX_BUNDLE_KEY, index);
+
+                    startActivityForResult(intent, TRANSACTION_ACTIVITY_REQUEST_CODE);
                 }
             });
         } catch (SQLException e) {
@@ -67,6 +77,8 @@ public class TransactionListActivity extends Activity {
         }
 
     }
+
+
 
     private CoinApplication.ItemType getLayoutIndex(int clickedCurrentLayoutId) {
         switch (clickedCurrentLayoutId) {
@@ -79,6 +91,26 @@ public class TransactionListActivity extends Activity {
             case R.id.goal_linear_layout:
                 return CoinApplication.ItemType.Goal;
             default: return null;
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+       // super.onActivityResult(requestCode, resultCode, data);
+        if ( requestCode == TRANSACTION_ACTIVITY_REQUEST_CODE && resultCode == RESULT_OK) {
+            int doneCode = data.getExtras().getInt(DONE_CODE_BUNDLE_KEY);
+            if (doneCode == REMOVE) {
+                int index = data.getExtras().getInt(TRANSACTION_INDEX_BUNDLE_KEY);
+                transactions.remove(index);
+            }
+            transactionAdapter.notifyDataSetChanged();
+            transactionList.setAdapter(transactionAdapter);
         }
     }
 }

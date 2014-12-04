@@ -126,4 +126,20 @@ public class Transaction extends BaseDaoEnabled {
     public CoinApplication.ItemType getToType() {
         return toType;
     }
+
+    public void setFromId(Integer fromId) {
+        this.fromId = fromId;
+    }
+
+    public void setToId(Integer toId) {
+        this.toId = toId;
+    }
+
+    public void setTitleFrom(String titleFrom) {
+        this.titleFrom = titleFrom;
+    }
+
+    public void setTitleTo(String titleTo) {
+        this.titleTo = titleTo;
+    }
 }

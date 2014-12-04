@@ -18,8 +18,8 @@ public class Spend extends MoneyFlow {
         this.budget = budget;
     }
 
-    public Spend(String title, String currency) {
-        super(title, currency);
+    public Spend(String title, String currency, CoinApplication.ItemType itemType) {
+        super(title, currency, itemType);
         this.budget = new Budget(getCurrency());
     }
 

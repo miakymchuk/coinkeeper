@@ -24,6 +24,11 @@
         <activity
                 android:name=".TransactionActivity"
                 android:screenOrientation="portrait"/>
+        <receiver android:name="com.mlucky.coin.app.broadcast.SmsReceiver" android:exported="true">
+            <intent-filter android:priority="999">
+                <action android:name="android.provider.Telephony.DATA_SMS_RECEIVED_ACTION"></action>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

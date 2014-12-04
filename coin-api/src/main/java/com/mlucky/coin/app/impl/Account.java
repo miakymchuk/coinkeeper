@@ -13,7 +13,7 @@ public class Account extends MoneyFlow {
         super();
     }
 
-    public Account(String title, String currency) {
-        super(title, currency);
+    public Account(String title, String currency, CoinApplication.ItemType itemType) {
+        super(title, currency, itemType);
     }
 }

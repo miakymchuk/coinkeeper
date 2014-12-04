@@ -104,9 +104,9 @@ public class ApplicationActivity extends Activity {
 
     private MoneyFlowBaseAdapter setMoneyFlowBaseAdapter(final List<? extends MoneyFlow> mMoneyFlowList, final int layoutId) {
         TwoWayGridView mInComeGridView = (TwoWayGridView) findViewById(layoutId);
-        MoneyFlowBaseAdapter mMoneyFlowAdaper = new MoneyFlowBaseAdapter(this, this.coinApplication,
+        MoneyFlowBaseAdapter mMoneyFlowAdapter = new MoneyFlowBaseAdapter(this, this.coinApplication,
                 mMoneyFlowList, layoutId);
-        mInComeGridView.setAdapter(mMoneyFlowAdaper);
+        mInComeGridView.setAdapter(mMoneyFlowAdapter);
         mInComeGridView.setOnItemClickListener(new TwoWayAdapterView.OnItemClickListener() {
             public void onItemClick(TwoWayAdapterView parent, View v, int position, long id) {
                 Integer countOfLayoutItems = choosingCountOfItems(layoutId);
@@ -166,7 +166,7 @@ public class ApplicationActivity extends Activity {
                 return false;
             }
         });
-        return mMoneyFlowAdaper;
+        return mMoneyFlowAdapter;
     }
 
     @Override
@@ -288,4 +288,13 @@ public class ApplicationActivity extends Activity {
         return databaseHelper;
     }
 
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mIncomeAdapter.notifyDataSetChanged();
+        mAccountAdapter.notifyDataSetChanged();
+        mSpendAdapter.notifyDataSetChanged();
+        mGoalAdapter.notifyDataSetChanged();
+    }
 }

@@ -29,6 +29,6 @@
     <string name="remove_item_and_transaction">Remove item and transaction</string>
     <string name="remove_item">Remove item</string>
 
-
+    <string name="toast_error_money">Please enter amount of money</string>
 
 </resources>

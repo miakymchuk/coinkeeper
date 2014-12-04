@@ -4,7 +4,7 @@
               android:layout_height="wrap_content">
 
     <EditText
-            android:id="@+id/transaction_amount"
+            android:id="@+id/dialog_transaction_amount"
             android:inputType="number|numberDecimal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

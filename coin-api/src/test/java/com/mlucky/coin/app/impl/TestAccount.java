@@ -57,9 +57,9 @@ public class TestAccount {
 //        System.out.println(cash.getTotal().toString());
 //
 //        List<Transaction> agricoleTransactions =  ((Account)cash).getTransactions();
-//        ((Account)cash).editTransaction(cashTransactions.get(2), "");
-//        ((Account)cash).editTransaction(cashTransactions.get(2), "0");
-//        ((Account)cash).editTransaction(cashTransactions.get(2), "100.00");
+//        ((Account)cash).editTransaction1(cashTransactions.get(2), "");
+//        ((Account)cash).editTransaction1(cashTransactions.get(2), "0");
+//        ((Account)cash).editTransaction1(cashTransactions.get(2), "100.00");
 //        Assert.assertEquals(cash.getTotal().toString(), "UAH 350.00");
 //        Assert.assertEquals(taxi.getTotal().toString(), "UAH 550.00");
     }

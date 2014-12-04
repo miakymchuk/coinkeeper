@@ -23,6 +23,9 @@ public abstract class MoneyFlow extends BaseDaoEnabled {
     @DatabaseField(generatedId = true)
     public Integer id;
 
+    @DatabaseField(dataType = DataType.ENUM_INTEGER)
+    CoinApplication.ItemType itemType;
+
     @DatabaseField
     private String currency;
 
@@ -34,9 +37,6 @@ public abstract class MoneyFlow extends BaseDaoEnabled {
 
     @DatabaseField(dataType = DataType.SERIALIZABLE)
     private Money total;
-
-    //@ForeignCollectionField(eager = true)
-    //private Collection<Transaction> transactions =  new ArrayList<Transaction>();
 
     public void addTransaction(MoneyFlow to, String money, boolean isIncreasing,
                                Dao<Transaction, Integer> transactionDao,
@@ -53,8 +53,7 @@ public abstract class MoneyFlow extends BaseDaoEnabled {
         }  catch (SQLException e) {
             e.printStackTrace();
         }
-//        this.transactions.add(newTransaction);
-//        to.transactions.add(newTransaction);
+
         Money inComeMoney = Money.parse(getCurrency() + " " + money);
         if (isIncreasing) {
             this.increaseTotal(inComeMoney);
@@ -83,14 +82,75 @@ public abstract class MoneyFlow extends BaseDaoEnabled {
         }
     }
 
+    public void editTransactionItems(MoneyFlow to, MoneyFlow previousFrom, MoneyFlow previousTo, Money beforeTransactionAmount,
+                                     String money, Dao< ? extends MoneyFlow, Integer> fromItemDao,
+                               Dao< ? extends MoneyFlow, Integer> toItemDao) {
+        if (money.isEmpty()) return;
+
+        Money inComeMoney = Money.parse(getCurrency() + " " + money);
+        if (!beforeTransactionAmount.getAmount().equals(inComeMoney.getAmount())) {
+            if (!to.equals(previousTo) && !this.equals(previousFrom))  {
+                this.increaseTotal(inComeMoney);
+                to.increaseTotal(inComeMoney);
+                previousFrom.decreaseTotal(beforeTransactionAmount);
+                previousTo.decreaseTotal(beforeTransactionAmount);
+            } else if (!to.equals(previousTo)) {
+                this.decreaseTotal(beforeTransactionAmount);
+                this.increaseTotal(inComeMoney);
+                to.increaseTotal(inComeMoney);
+                previousTo.decreaseTotal(beforeTransactionAmount);
+            } else if (!this.equals(previousFrom)) {
+                to.decreaseTotal(beforeTransactionAmount);
+                to.increaseTotal(inComeMoney);
+                this.increaseTotal(inComeMoney);
+                previousFrom.decreaseTotal(beforeTransactionAmount);
+            } else {
+                this.decreaseTotal(beforeTransactionAmount);
+                this.increaseTotal(inComeMoney);
+                to.decreaseTotal(beforeTransactionAmount);
+                to.increaseTotal(inComeMoney);
+            }
+        } else if (!to.equals(previousTo) && !this.equals(previousFrom)) {
+            this.increaseTotal(inComeMoney);
+            to.increaseTotal(inComeMoney);
+            previousFrom.decreaseTotal(inComeMoney);
+            previousTo.decreaseTotal(inComeMoney);
+        } else if (!this.equals(previousFrom)) {
+            this.increaseTotal(inComeMoney);
+            previousFrom.decreaseTotal(beforeTransactionAmount);
+        } else if (!to.equals(previousTo)) {
+            to.increaseTotal(inComeMoney);
+            previousTo.decreaseTotal(beforeTransactionAmount);
+        }
+
+
+
+        this.setDao(fromItemDao);
+        to.setDao(toItemDao);
+        try {
+            if (this.update() != 1) {
+                throw new SQLException("Failure update entity: " + this.getClass().getSimpleName() +
+                        " id: " +  this.getId());
+            }
+            if (to.update() != 1) {
+                throw new SQLException("Failure update entity: " +  to.getClass().getSimpleName() +
+                        " id: " +  to.getId());
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     protected MoneyFlow() {
 
     }
 
-    public MoneyFlow(String title, String currency) {
+    public MoneyFlow(String title, String currency, CoinApplication.ItemType itemType ) {
         this.currency = currency;
         this.title = title;
         this.total = Money.parse(currency + " " + "0");
+        this.itemType = itemType;
     }
 
     public void removeTransaction(Transaction transaction) {
@@ -169,5 +229,13 @@ public abstract class MoneyFlow extends BaseDaoEnabled {
         return id.equals(mf.id) &&
                 title.equals(mf.title) &&
                 total.equals(mf.total);
+    }
+
+    public CoinApplication.ItemType getItemType() {
+        return itemType;
+    }
+
+    public void setItemType(CoinApplication.ItemType itemType) {
+        this.itemType = itemType;
     }
 }
