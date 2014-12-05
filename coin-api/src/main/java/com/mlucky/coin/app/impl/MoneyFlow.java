@@ -238,4 +238,12 @@ public abstract class MoneyFlow extends BaseDaoEnabled {
     public void setItemType(CoinApplication.ItemType itemType) {
         this.itemType = itemType;
     }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setTotal(Money total) {
+        this.total = total;
+    }
 }

@@ -6,7 +6,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import com.mlucky.coin.app.gui.R;
 import com.mlucky.coin.app.impl.MoneyFlow;
 
@@ -48,7 +47,7 @@ public class TransactionEditModeBaseAdapter extends BaseAdapter {
     public View getView(int i, View view, ViewGroup viewGroup) {
         ItemHolder mHolder;
         if (view == null) {
-           view = inflater.inflate(R.layout.item_edit_mode, null);
+           view = inflater.inflate(R.layout.item_radio, null);
             mHolder = new ItemHolder(view);
             view.setTag(mHolder);
         } else {

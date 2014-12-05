@@ -5,6 +5,7 @@ import android.content.ClipData;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.*;
+import android.widget.ImageView;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
 import com.jess.ui.TwoWayAdapterView;
@@ -12,6 +13,7 @@ import com.jess.ui.TwoWayGridView;
 import com.mlucky.coin.app.gui.adapter.MoneyFlowBaseAdapter;
 import com.mlucky.coin.app.db.DatabaseHelper;
 import com.mlucky.coin.app.gui.dialog.AddItemDialogFragment;
+import com.mlucky.coin.app.gui.dialog.EditItemDialogFragment;
 import com.mlucky.coin.app.gui.dialog.RemoveItemDialogFragment;
 import com.mlucky.coin.app.impl.*;
 
@@ -29,6 +31,8 @@ public class ApplicationActivity extends Activity {
     private final String IS_REMOVE_TRANSACTION_BUNDLE_KEY = "isRemoveTransaction";
 
     private final String LOG_TAG = getClass().getSimpleName();
+
+    final int REQUEST_EDIT_CODE = 555;
 
     private CoinApplication coinApplication = null;
 
@@ -108,18 +112,33 @@ public class ApplicationActivity extends Activity {
                 mMoneyFlowList, layoutId);
         mInComeGridView.setAdapter(mMoneyFlowAdapter);
         mInComeGridView.setOnItemClickListener(new TwoWayAdapterView.OnItemClickListener() {
+            @Override
             public void onItemClick(TwoWayAdapterView parent, View v, int position, long id) {
                 Integer countOfLayoutItems = choosingCountOfItems(layoutId);
 
                 if(mIncomeAdapter.isEditMode()){
                     if (position == countOfLayoutItems) return;
-
-                    DialogFragment removeDialog = new RemoveItemDialogFragment();
-                    Bundle bundle = new Bundle();
+                    final Bundle bundle = new Bundle();
                     bundle.putInt(LAYOUT_ID_BUNDLE_KEY, layoutId);
                     bundle.putInt(ITEM_POSITION_BUNDLE_KEY, position);
-                    removeDialog.setArguments(bundle);
-                    removeDialog.show(getFragmentManager(), null);
+
+                    ImageView removeButton = (ImageView)v.findViewById(R.id.ic_btn_remove_item);
+                    removeButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            DialogFragment removeDialog = new RemoveItemDialogFragment();
+
+                            removeDialog.setArguments(bundle);
+                            removeDialog.show(getFragmentManager(), null);
+                        }
+                    });
+                    //TODO edit item
+                    DialogFragment editDialog = new EditItemDialogFragment();
+                    editDialog.setArguments(bundle);
+
+                    final String EDIT_DIALOG = "editDialog";
+                    editDialog.setTargetFragment(editDialog, REQUEST_EDIT_CODE);
+                    editDialog.show(getFragmentManager(),EDIT_DIALOG );
 
                     return;
                 }
@@ -296,5 +315,15 @@ public class ApplicationActivity extends Activity {
         mAccountAdapter.notifyDataSetChanged();
         mSpendAdapter.notifyDataSetChanged();
         mGoalAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_EDIT_CODE && resultCode == RESULT_OK) {
+            mIncomeAdapter.notifyDataSetChanged();
+            mAccountAdapter.notifyDataSetChanged();
+            mSpendAdapter.notifyDataSetChanged();
+            mGoalAdapter.notifyDataSetChanged();
+        }
     }
 }

@@ -31,4 +31,20 @@
 
     <string name="toast_error_money">Please enter amount of money</string>
 
+    <string name="export_db">Export Data base</string>
+    <string name="import_db">Import Data base</string>
+
+    <string name="login">Login:</string>
+    <string name="password">Password:</string>
+    <string name="sign_in">Sign In</string>
+
+    <string name="edit_income_sources">Edit income sources</string>
+    <string name="edit_account">Edit account</string>
+    <string name="edit_expenses">Edit category of expenses</string>
+    <string name="edit_goals">Edit financial goal</string>
+    <string name="edit_title">Edit title</string>
+    <string name="edit_current_amount">Edit amount</string>
+
+    <string name="edit_finish">Finish</string>
+
 </resources>
