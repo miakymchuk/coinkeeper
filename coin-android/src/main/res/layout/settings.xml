@@ -3,18 +3,26 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
               android:layout_width="match_parent"
-              android:layout_height="match_parent">
+              android:layout_height="match_parent"
+              android:paddingLeft="10dp" android:paddingRight="10dp">
 
     <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/export_db"
-            android:id="@+id/button_export_db" android:layout_marginLeft="10dp" android:layout_marginRight="10dp"
+            android:id="@+id/button_export_db"
             android:gravity="center"/>
     <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/import_db"
-            android:id="@+id/button_import_db" android:layout_marginLeft="10dp" android:layout_marginRight="10dp"
+            android:id="@+id/button_import_db"
             android:gravity="center"/>
+    <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sign_in"
+            android:id="@+id/sign_in"
+            android:gravity="center"
+            android:onClick="onClickSignInButton"/>
 </LinearLayout>

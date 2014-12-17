@@ -13,9 +13,7 @@ import org.joda.money.Money;
 
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by m.iakymchuk on 05.11.2014.
@@ -40,13 +38,13 @@ public class CoinApplication extends BaseDaoEnabled {
     @DatabaseField(dataType = DataType.DATE)
     private Date currentDate;
 
-    List<InCome> inComeSources =  new ArrayList<InCome>();
+    static List<InCome> inComeSources =  new ArrayList<InCome>();
 
-    List<Account> accounts = new ArrayList<Account>();
+    static List<Account> accounts = new ArrayList<Account>();
 
-    List<Spend> spends = new ArrayList<Spend>();
+    static List<Spend> spends = new ArrayList<Spend>();
 
-    List<Goal> goals  = new ArrayList<Goal>();
+    static List<Goal> goals  = new ArrayList<Goal>();
 
     @DatabaseField(canBeNull = true, dataType = DataType.SERIALIZABLE)
     private Money currentBalance;
@@ -321,6 +319,26 @@ public class CoinApplication extends BaseDaoEnabled {
         else if ("Goal".equals(type))
             return goals;
         else return null;
+    }
+    static Map wrappers = new HashMap();
+    static {
+        wrappers.put(InCome.class, inComeSources);
+        wrappers.put(Account.class, inComeSources);
+        wrappers.put(Spend.class, inComeSources);
+        wrappers.put(Goal.class, inComeSources);
+    }
+    public List<? extends MoneyFlow> getMoneyFlowList(Class itemType) {
+        for(Object wrapper : wrappers.keySet()) {
+            try {
+                if (((Class) wrapper).getField("TYPE").get(null).equals(itemType))
+                    return (List<? extends MoneyFlow>) wrappers.get(wrapper);
+            } catch (IllegalAccessException impossible) {
+                throw new RuntimeException(impossible);
+            } catch (NoSuchFieldException impossible) {
+                throw new RuntimeException(impossible);
+            }
+        }
+        return null;
     }
 
     public List<? extends MoneyFlow> getMoneyFlowList(ItemType itemType) {

@@ -25,4 +25,9 @@
     <!-- Файл с настройками контроллеров -->
     <beans:import resource="controllers.xml" />
 
+    <!--<beans:bean id="expressionHandler"-->
+          <!--class="org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler">-->
+        <!--<beans:property name="permissionEvaluator" ref="applicationPermissionEvaluator"/>-->
+    <!--</beans:bean>-->
+
 </beans:beans>

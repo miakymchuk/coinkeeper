@@ -12,6 +12,7 @@
     <string name="dialog_title_transaction">Please enter amount</string>
     <string name="set_title">Add</string>
     <string name="cancel">Cancel</string>
+    <string name="submit">Submit</string>
     <string name="income_sources">Income Sources</string>
     <string name="account">Account</string>
     <string name="spend">Expenses</string>
@@ -38,6 +39,15 @@
     <string name="password">Password:</string>
     <string name="sign_in">Sign In</string>
 
+    <string name="create_login">Choose your username</string>
+    <string name="create_password">Create a password</string>
+    <string name="create_user_registration">Create your Coin Account</string>
+    <string name="confirm_password">Confirm your password</string>
+
+
+    <string name="get_forgot_password">Forgot password?</string>
+    <string name="get_registration">Registration</string>
+
     <string name="edit_income_sources">Edit income sources</string>
     <string name="edit_account">Edit account</string>
     <string name="edit_expenses">Edit category of expenses</string>
@@ -46,5 +56,6 @@
     <string name="edit_current_amount">Edit amount</string>
 
     <string name="edit_finish">Finish</string>
+
 
 </resources>

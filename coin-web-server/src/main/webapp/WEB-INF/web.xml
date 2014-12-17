@@ -6,7 +6,6 @@
         version="2.5">
 
 	<display-name>Spring MVC Web Application</display-name>
-
     <context-param>
         <param-name>contextConfigLocation</param-name>
         <param-value>/WEB-INF/spring/root-context.xml</param-value>

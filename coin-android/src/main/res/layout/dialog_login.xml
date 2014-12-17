@@ -38,4 +38,20 @@
                 android:ems="10"
                 android:id="@+id/editText_password" android:layout_weight="3"/>
     </LinearLayout>
+    <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:layout_gravity="center_horizontal">
+        <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/get_forgot_password"
+                android:id="@+id/button_forgot_password"/>
+        <Button android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="@string/get_registration"
+                android:id="@+id/button_registration"/>
+    </LinearLayout>
 </LinearLayout>
