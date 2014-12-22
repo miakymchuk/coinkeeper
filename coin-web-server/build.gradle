@@ -16,13 +16,17 @@ apply plugin: 'jetty'
 
 
 dependencies {
+
     compile "org.springframework:spring-webmvc:4.1.2.RELEASE",
-            "org.springframework.security:spring-security-ldap:3.2.4.RELEASE",
             "org.springframework:spring-tx:4.0.6.RELEASE",
             "org.springframework:spring-orm:4.0.0.RELEASE",
+            "org.springframework.security:spring-security-core:$springSecurityVersion",
+            "org.springframework.security:spring-security-config:$springSecurityVersion",
+            "org.springframework.security:spring-security-aspects:$springSecurityVersion",
+            "org.springframework.security:spring-security-taglibs:$springSecurityVersion",
+            "org.springframework.security:spring-security-web:$springSecurityVersion",
             "javax.persistence:persistence-api:1.0.2",
             "org.hibernate:hibernate-core:4.0.1.Final",
-
             "org.hibernate:hibernate-commons-annotations:3.2.0.Final",
             "ch.qos.logback:logback-classic:1.1.2",
             "jstl:jstl:1.2",

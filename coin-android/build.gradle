@@ -8,7 +8,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.12.2'
+        classpath 'com.android.tools.build:gradle:0.14.2'
     }
 }
 
@@ -19,6 +19,19 @@ sourceCompatibility = 1.7
 android {
     compileSdkVersion 19
     buildToolsVersion '21.1.0'
+
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES.txt'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/notice.txt'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/dependencies.txt'
+        exclude 'META-INF/LGPL2.1'
+    }
 
     defaultConfig {
         minSdkVersion 19
@@ -32,15 +45,18 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
+    lintOptions {
+        abortOnError false
+    }
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile project(':two-way-grid-view-lib')
-    compile project(':coin-api')
     compile "com.android.support:appcompat-v7:19.+",
             "com.j256.ormlite:ormlite-android:4.48",
             "org.joda:joda-money:0.9.1",
             "org.springframework.android:spring-android-rest-template:1.0.1.RELEASE",
-            "com.fasterxml.jackson.core:jackson-databind:2.3.4"
+            "com.fasterxml.jackson.core:jackson-databind:2.3.2"
+    compile project(':two-way-grid-view-lib')
+    compile project(':coin-api')
 }

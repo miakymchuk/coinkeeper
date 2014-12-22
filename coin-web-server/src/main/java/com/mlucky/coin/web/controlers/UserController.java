@@ -34,7 +34,11 @@ public class UserController {
         return "user";
     }
 
-    @RequestMapping(value = "/add", method = RequestMethod.POST)
+    @RequestMapping(value = "/login", method = RequestMethod.GET, produces = "application/json")
+    public User login(@ModelAttribute("login") String login, @ModelAttribute("password") String password) {
+        return "";
+    }
+    @RequestMapping(value = "/register", method = RequestMethod.POST, produces = "application/json")
     public String addUser(@ModelAttribute("user") User user, BindingResult result) {
         userService.addUser(user);
         return "redirect:/login";

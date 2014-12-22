@@ -12,4 +12,5 @@
 target
 build
 .gradle
+local.propertiesS
 
